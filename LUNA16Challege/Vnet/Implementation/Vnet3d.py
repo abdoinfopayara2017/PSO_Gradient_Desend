@@ -164,6 +164,7 @@ def weight_xavier_init_particule():
     kernal=(3, 3, 3, 1, 16)
     W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] * kernal[2] * kernal[3],
                                n_outputs=kernal[-1], activefunction='relu', variable_name=scope + 'conv_W')
+    
     B = bias_variable([kernal[-1]], variable_name=scope + 'conv_B')
     list.append(W)
     list.append(B)
@@ -439,14 +440,18 @@ def weight_xavier_init_particule():
 
     return list
 
-def lunch():
+def lunch():  
     list=weight_xavier_init_particule()
-    for i in range(0,2):
-       print('shape of element is ',  i,list[i].get_shape())
-       print(list[i])
-
+    init = tf.initialize_all_variables()    
+    with tf.Session() as sess:
+        sess.run(init)
+        sess.run(list)
+    
+        ''' for i in range(0,2):
+            print('shape of element is ',  i,list[i].get_shape())
+            print (list[i])
+        '''
 lunch()
-
 
 
 

@@ -13,6 +13,7 @@ def conv_bn_relu_drop(x, kernal, phase, drop, image_z=None, height=None, width=N
     with tf.name_scope(scope):
         W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] * kernal[2] * kernal[3],
                                n_outputs=kernal[-1], activefunction='relu', variable_name=scope + 'conv_W')
+        
         B = bias_variable([kernal[-1]], variable_name=scope + 'conv_B')
         conv = conv3d(x, W) + B
         conv = normalizationlayer(conv, is_train=phase, height=height, width=width, image_z=image_z, norm_type='group',
