@@ -12,27 +12,37 @@ import random
 
 
 
-def conv_bn_relu_drop(x, W, B):
+def conv_bn_relu_drop(x, W, B,pre_activations,activations):
     conv = conv3d(x, W) + B
+    pre_activations.append(conv.copy())    
+    conv = tf.nn.relu(conv)
+    activations.append(conv.copy())
     return conv
 
 
 
-def down_sampling(x, W, B):
+def down_sampling(x, W, B ,pre_activations,activations):
     
     conv = conv3d(x, W, 2) + B
+    pre_activations.append(conv.copy())    
+    conv = tf.nn.relu(conv)    
+    activations.append(conv.copy())
     return conv
 
 
-def deconv_relu(x, W,B, samefeture=False):
+def deconv_relu(x, W,B,pre_activations,activations,samefeture=False ):
     conv = deconv3d(x, W, samefeture, True) + B
+    pre_activations.append(conv.copy())
     conv = tf.nn.relu(conv)
+    activations.append(conv.copy())
     return conv
 
 
-def conv_sigmod(x, W,B):
+def conv_sigmod(x, W,B ,pre_activations,activations):
     conv = conv3d(x, W) + B
+    pre_activations.append(conv.copy())
     conv = tf.nn.sigmoid(conv)
+    activations.append(conv.copy())
     return conv
 
 # Serve data by batches
@@ -52,88 +62,132 @@ def cost(Y_gt, Y_pred):
         loss = -tf.reduce_mean(intersection / denominator)
         return loss
 
-def _create_conv_net(X, image_z, image_width, image_height, image_channel,position):
+def derivative_cost(dice,Y_gt,Y_pred):
+    smooth = 1e-5
+    dY_pred = (2* Y_gt - dice)/(np.sum(Y_pred)+np.sum(Y_gt)+smooth)
+    return dY_pred
+
+def derivative_sigmoid(X) :
+    X = tf.nn.sigmoid(X) * (1 - tf.nn.sigmoid(X))
+
+def _create_conv_net(X, image_z, image_width, image_height, image_channel,position,drop):
+    pre_activations = []
+    activations = []
     inputX = tf.reshape(X, [-1, image_z, image_width, image_height, image_channel])  # shape=(?, 32, 32, 1)
     # Vnet model
     # layer1->convolution
     
-    layer0 = conv_bn_relu_drop(x=inputX,W=position[0],B=position[1])
-    layer1 = conv_bn_relu_drop(x=layer0, W=position[2],B=position[3])
+    activations.append(inputX)
+    layer0 = conv_bn_relu_drop(x=inputX,W=position[0],B=position[1],pre_activations=pre_activations,
+                               activations=activations)
+    layer1 = conv_bn_relu_drop(x=layer0, W=position[2],B=position[3],pre_activations=pre_activations,
+                               activations=activations)
     layer1 = resnet_Add(x1=layer0, x2=layer1)
     # down sampling1
-    down1 = down_sampling(x=layer1,W=position[4],B=position[5])
+    down1 = down_sampling(x=layer1,W=position[4],B=position[5],pre_activations=pre_activations,
+                               activations=activations)
     # layer2->convolution
-    layer2 = conv_bn_relu_drop(x=down1, W=position[6],B=position[7])
-    layer2 = conv_bn_relu_drop(x=layer2, W=position[8],B=position[9])
+    layer2 = conv_bn_relu_drop(x=down1, W=position[6],B=position[7],pre_activations=pre_activations,
+                               activations=activations)
+    layer2 = conv_bn_relu_drop(x=layer2, W=position[8],B=position[9],pre_activations=pre_activations,
+                               activations=activations)
     layer2 = resnet_Add(x1=down1, x2=layer2)
     # down sampling2
-    down2 = down_sampling(x=layer2, W=position[10],B=position[11])
+    down2 = down_sampling(x=layer2, W=position[10],B=position[11],pre_activations=pre_activations,
+                               activations=activations)
     # layer3->convolution
-    layer3 = conv_bn_relu_drop(x=down2, W=position[12],B=position[13])
-    layer3 = conv_bn_relu_drop(x=layer3, W=position[14],B=position[15])
-    layer3 = conv_bn_relu_drop(x=layer3, W=position[16],B=position[17])
+    layer3 = conv_bn_relu_drop(x=down2, W=position[12],B=position[13],pre_activations=pre_activations,
+                               activations=activations)
+    layer3 = conv_bn_relu_drop(x=layer3, W=position[14],B=position[15],pre_activations=pre_activations,
+                               activations=activations)
+    layer3 = conv_bn_relu_drop(x=layer3, W=position[16],B=position[17],pre_activations=pre_activations,
+                               activations=activations)
     layer3 = resnet_Add(x1=down2, x2=layer3)
     # down sampling3
-    down3 = down_sampling(x=layer3, W=position[18],B=position[19])
+    down3 = down_sampling(x=layer3, W=position[18],B=position[19],pre_activations=pre_activations,
+                               activations=activations)
     # layer4->convolution
-    layer4 = conv_bn_relu_drop(x=down3, W=position[20],B=position[21])
-    layer4 = conv_bn_relu_drop(x=layer4, W=position[22],B=position[23])
-    layer4 = conv_bn_relu_drop(x=layer4, W=position[24],B=position[25])
+    layer4 = conv_bn_relu_drop(x=down3, W=position[20],B=position[21],pre_activations=pre_activations,
+                               activations=activations)
+    layer4 = conv_bn_relu_drop(x=layer4, W=position[22],B=position[23],pre_activations=pre_activations,
+                               activations=activations)
+    layer4 = conv_bn_relu_drop(x=layer4, W=position[24],B=position[25],pre_activations=pre_activations,
+                               activations=activations)
     layer4 = resnet_Add(x1=down3, x2=layer4)
     # down sampling4
-    down4 = down_sampling(x=layer4, W=position[26],B=position[27])
+    down4 = down_sampling(x=layer4, W=position[26],B=position[27],pre_activations=pre_activations,
+                               activations=activations)
     # layer5->convolution
-    layer5 = conv_bn_relu_drop(x=down4, W=position[28],B=position[29])
-    layer5 = conv_bn_relu_drop(x=layer5, W=position[30],B=position[31])
-    layer5 = conv_bn_relu_drop(x=layer5, W=position[32],B=position[33])
+    layer5 = conv_bn_relu_drop(x=down4, W=position[28],B=position[29],pre_activations=pre_activations,
+                               activations=activations)
+    layer5 = conv_bn_relu_drop(x=layer5, W=position[30],B=position[31],pre_activations=pre_activations,
+                               activations=activations)
+    layer5 = conv_bn_relu_drop(x=layer5, W=position[32],B=position[33],pre_activations=pre_activations,
+                               activations=activations)
     layer5 = resnet_Add(x1=down4, x2=layer5)
 
     # layer9->deconvolution
-    deconv1 = deconv_relu(x=layer5, W=position[34],B=position[35])
+    deconv1 = deconv_relu(x=layer5, W=position[34],B=position[35],pre_activations=pre_activations,
+                               activations=activations)
     # layer8->convolution
     layer6 = crop_and_concat(layer4, deconv1)
     
-    layer6 = conv_bn_relu_drop(x=layer6, W=position[36],B=position[37])
-    layer6 = conv_bn_relu_drop(x=layer6, W=position[38],B=position[39])
-    layer6 = conv_bn_relu_drop(x=layer6, W=position[40],B=position[41])
+    layer6 = conv_bn_relu_drop(x=layer6, W=position[36],B=position[37],pre_activations=pre_activations,
+                               activations=activations)
+    layer6 = conv_bn_relu_drop(x=layer6, W=position[38],B=position[39],pre_activations=pre_activations,
+                               activations=activations)
+    layer6 = conv_bn_relu_drop(x=layer6, W=position[40],B=position[41],pre_activations=pre_activations,
+                               activations=activations)
     layer6 = resnet_Add(x1=deconv1, x2=layer6)
     # layer9->deconvolution
     deconv2 = deconv_relu(x=layer6, W=position[42],B=position[43])
     # layer8->convolution
     layer7 = crop_and_concat(layer3, deconv2)
-    _, Z, H, W, _ = layer3.get_shape().as_list()
-    layer7 = conv_bn_relu_drop(x=layer7, W=position[44],B=position[45])
-    layer7 = conv_bn_relu_drop(x=layer7, W=position[46],B=position[47])
-    layer7 = conv_bn_relu_drop(x=layer7, W=position[48],B=position[49])
+   
+    layer7 = conv_bn_relu_drop(x=layer7, W=position[44],B=position[45],pre_activations=pre_activations,
+                               activations=activations)
+    layer7 = conv_bn_relu_drop(x=layer7, W=position[46],B=position[47],pre_activations=pre_activations,
+                               activations=activations)
+    layer7 = conv_bn_relu_drop(x=layer7, W=position[48],B=position[49],pre_activations=pre_activations,
+                               activations=activations)
     layer7 = resnet_Add(x1=deconv2, x2=layer7)
     # layer9->deconvolution
-    deconv3 = deconv_relu(x=layer7, W=position[50],B=position[51])
+    deconv3 = deconv_relu(x=layer7, W=position[50],B=position[51],pre_activations=pre_activations,
+                               activations=activations)
     # layer8->convolution
     layer8 = crop_and_concat(layer2, deconv3)
     
-    layer8 = conv_bn_relu_drop(x=layer8, W=position[52],B=position[53])
-    layer8 = conv_bn_relu_drop(x=layer8, W=position[54],B=position[55])
-    layer8 = conv_bn_relu_drop(x=layer8, W=position[56],B=position[57])
+    layer8 = conv_bn_relu_drop(x=layer8, W=position[52],B=position[53],pre_activations=pre_activations,
+                               activations=activations)
+    layer8 = conv_bn_relu_drop(x=layer8, W=position[54],B=position[55],pre_activations=pre_activations,
+                               activations=activations)
+    layer8 = conv_bn_relu_drop(x=layer8, W=position[56],B=position[57],pre_activations=pre_activations,
+                               activations=activations)
     layer8 = resnet_Add(x1=deconv3, x2=layer8)
     # layer9->deconvolution
-    deconv4 = deconv_relu(x=layer8, W=position[58],B=position[59])
+    deconv4 = deconv_relu(x=layer8, W=position[58],B=position[59],pre_activations=pre_activations,
+                               activations=activations)
     # layer8->convolution
     layer9 = crop_and_concat(layer1, deconv4)
     
-    layer9 = conv_bn_relu_drop(x=layer9, W=position[60],B=position[61])
-    layer9 = conv_bn_relu_drop(x=layer9, W=position[62],B=position[63])
-    layer9 = conv_bn_relu_drop(x=layer9, W=position[64],B=position[65])
+    layer9 = conv_bn_relu_drop(x=layer9, W=position[60],B=position[61],pre_activations=pre_activations,
+                               activations=activations)
+    layer9 = conv_bn_relu_drop(x=layer9, W=position[62],B=position[63],pre_activations=pre_activations,
+                               activations=activations)
+    layer9 = conv_bn_relu_drop(x=layer9, W=position[64],B=position[65],pre_activations=pre_activations,
+                               activations=activations)
     layer9 = resnet_Add(x1=deconv4, x2=layer9)
     # layer14->output
-    output_map = conv_sigmod(x=layer9, W=position[68],B=position[69])
-    return output_map
+    output_map = conv_sigmod(x=layer9, W=position[68],B=position[69],pre_activations=pre_activations,
+                               activations=activations)
+    return output_map , pre_activations , activations
 
 class Vnet3dModule(object):
     def __init__(self, image_height, image_width, image_depth, channels=1):
         self.image_width = image_width
         self.image_height = image_height
         self.image_depth = image_depth
-        self.channels = channels
+        self.channels = channels        
 
     def train(self, train_images, train_lanbels,position,
                batch_size=1):
@@ -162,12 +216,16 @@ class Vnet3dModule(object):
         batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
         batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
         # Make prediction
-        Y_pred=_create_conv_net(batch_xs,self.image_depth, self.image_width, self.image_height, self.channels,position)
+        Y_pred , pre_activation , activation =_create_conv_net(batch_xs,self.image_depth, self.image_width, self.image_height, self.channels,position)
         train_loss=cost(batch_ys,Y_pred)
+        dY_pred=derivative_cost(train_loss,batch_ys,activation[-1])
+        derisigmoid=derivative_sigmoid(pre_activation[-1])
         with tf.Session() as sess:
             sess.run(Y_pred)
             sess.run(train_loss)
-        return train_loss            
+            sess.run(dY_pred)
+            sess.run(derisigmoid)
+        return train_loss , dY_pred * derisigmoid , pre_activation , activation         
             
 
 
@@ -456,17 +514,13 @@ def weight_xavier_init_particule():
     return list
 
 def lunch():  
-    list=weight_xavier_init_particule()
+    list_weights_all_layers=weight_xavier_init_particule()
     init = tf.initialize_all_variables()    
     with tf.Session() as sess:
         sess.run(init)
-        sess.run(list)
-    
-        ''' for i in range(0,2):
-            print('shape of element is ',  i,list[i].get_shape())
-            print (list[i])
-        '''
-    return list    
+        sess.run(list_weights_all_layers)   
+        
+    return list_weights_all_layers    
 lunch()
 
 
