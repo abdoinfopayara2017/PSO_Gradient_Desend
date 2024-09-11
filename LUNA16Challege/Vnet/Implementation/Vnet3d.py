@@ -13,10 +13,10 @@ import random
 
 
 def conv_bn_relu_drop(x, W, B,pre_activations,activations):
-    conv = conv3d(x, W) + B
-    pre_activations.append(conv.copy())    
+    conv = conv3d(x, W) + B    
+    pre_activations.append(conv)    
     conv = tf.nn.relu(conv)
-    activations.append(conv.copy())
+    activations.append(conv)
     return conv
 
 
@@ -24,25 +24,25 @@ def conv_bn_relu_drop(x, W, B,pre_activations,activations):
 def down_sampling(x, W, B ,pre_activations,activations):
     
     conv = conv3d(x, W, 2) + B
-    pre_activations.append(conv.copy())    
+    pre_activations.append(conv)    
     conv = tf.nn.relu(conv)    
-    activations.append(conv.copy())
+    activations.append(conv)
     return conv
 
 
 def deconv_relu(x, W,B,pre_activations,activations,samefeture=False ):
     conv = deconv3d(x, W, samefeture, True) + B
-    pre_activations.append(conv.copy())
+    pre_activations.append(conv)
     conv = tf.nn.relu(conv)
-    activations.append(conv.copy())
+    activations.append(conv)
     return conv
 
 
 def conv_sigmod(x, W,B ,pre_activations,activations):
     conv = conv3d(x, W) + B
-    pre_activations.append(conv.copy())
+    pre_activations.append(conv)
     conv = tf.nn.sigmoid(conv)
-    activations.append(conv.copy())
+    activations.append(conv)
     return conv
 
 # Serve data by batches
@@ -53,24 +53,27 @@ def _next_batch(train_images, train_labels, batch_size, index_in_epoch):
     return train_images[start:end], train_labels[start:end]
 
 def cost(Y_gt, Y_pred):
-        Z, H, W, C = Y_gt.get_shape().as_list()[1:]
+        Z, H, W, C = list(Y_gt.shape)[1:]
         smooth = 1e-5
         pred_flat = tf.reshape(Y_pred, [-1, H * W * C * Z])
         true_flat = tf.reshape(Y_gt, [-1, H * W * C * Z])
         intersection = 2 * tf.reduce_sum(pred_flat * true_flat, axis=1) + smooth
         denominator = tf.reduce_sum(pred_flat, axis=1) + tf.reduce_sum(true_flat, axis=1) + smooth
         loss = -tf.reduce_mean(intersection / denominator)
+        
         return loss
 
-def derivative_cost(dice,Y_gt,Y_pred):
-    smooth = 1e-5
-    dY_pred = (2* Y_gt - dice)/(np.sum(Y_pred)+np.sum(Y_gt)+smooth)
+def derivative_cost(dice,Y_gt,Y_pred):   
+   
+    smooth = 1e-5   
+    dY_pred = (tf.subtract(tf.multiply(2.0,Y_gt), dice))/(tf.reduce_sum(Y_pred) + tf.reduce_sum(Y_gt) + smooth)
     return dY_pred
 
 def derivative_sigmoid(X) :
-    X = tf.nn.sigmoid(X) * (1 - tf.nn.sigmoid(X))
+    X = tf.multiply(tf.nn.sigmoid(X) , (1 - tf.nn.sigmoid(X)))
+    return X
 
-def _create_conv_net(X, image_z, image_width, image_height, image_channel,position,drop):
+def _create_conv_net(X, image_z, image_width, image_height, image_channel,position):
     pre_activations = []
     activations = []
     inputX = tf.reshape(X, [-1, image_z, image_width, image_height, image_channel])  # shape=(?, 32, 32, 1)
@@ -140,7 +143,8 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
                                activations=activations)
     layer6 = resnet_Add(x1=deconv1, x2=layer6)
     # layer9->deconvolution
-    deconv2 = deconv_relu(x=layer6, W=position[42],B=position[43])
+    deconv2 = deconv_relu(x=layer6, W=position[42],B=position[43],pre_activations=pre_activations,
+                               activations=activations)
     # layer8->convolution
     layer7 = crop_and_concat(layer3, deconv2)
    
@@ -178,7 +182,7 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
                                activations=activations)
     layer9 = resnet_Add(x1=deconv4, x2=layer9)
     # layer14->output
-    output_map = conv_sigmod(x=layer9, W=position[68],B=position[69],pre_activations=pre_activations,
+    output_map = conv_sigmod(x=layer9, W=position[66],B=position[67],pre_activations=pre_activations,
                                activations=activations)
     return output_map , pre_activations , activations
 
@@ -190,8 +194,8 @@ class Vnet3dModule(object):
         self.channels = channels        
 
     def train(self, train_images, train_lanbels,position,
-               batch_size=1):
-                
+               batch_size=1):  
+        
         index_in_epoch=random.randrange(0, train_images.shape[0]-batch_size)
         # get new batch
         batch_xs_path, batch_ys_path = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
@@ -214,23 +218,22 @@ class Vnet3dModule(object):
         batch_ys = batch_ys.astype(np.float)
         # Normalize from [0:255] => [0.0:1.0]
         batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
+        batch_xs=np.float32(batch_xs)
         batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
+        batch_ys=np.float32(batch_ys)
+        
         # Make prediction
-        Y_pred , pre_activation , activation =_create_conv_net(batch_xs,self.image_depth, self.image_width, self.image_height, self.channels,position)
-        train_loss=cost(batch_ys,Y_pred)
-        dY_pred=derivative_cost(train_loss,batch_ys,activation[-1])
+        Y_pred , pre_activation , activation =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
+        train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
+        
+        dY_pred=derivative_cost(-train_loss , tf.convert_to_tensor(batch_ys) , activation[-1])
         derisigmoid=derivative_sigmoid(pre_activation[-1])
-        with tf.Session() as sess:
-            sess.run(Y_pred)
-            sess.run(train_loss)
-            sess.run(dY_pred)
-            sess.run(derisigmoid)
-        return train_loss , dY_pred * derisigmoid , pre_activation , activation         
-            
-
+               
+        return train_loss , tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+                 
 
 def weight_xavier_init_particule():
-    # creating list
+    # creating Tensor
     list = []
     
     scope='layer0'
@@ -514,14 +517,19 @@ def weight_xavier_init_particule():
     return list
 
 def lunch():  
-    list_weights_all_layers=weight_xavier_init_particule()
-    init = tf.initialize_all_variables()    
-    with tf.Session() as sess:
-        sess.run(init)
-        sess.run(list_weights_all_layers)   
         
-    return list_weights_all_layers    
-lunch()
+        #with tf.Graph().as_default():
+            list_weights_all_layers=weight_xavier_init_particule()        
+            #init = tf.global_variables_initializer()    
+            #with tf.Session() as sess:
+            #    sess.run(init)
+            #    sess.run(list_weights_all_layers)
+            #    print(sess.run(tf.is_variable_initialized(
+            #         list_weights_all_layers[0])))  
+                                    
+            return list_weights_all_layers       
+    
+#lunch()
 
 
 

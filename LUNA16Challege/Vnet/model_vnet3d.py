@@ -267,8 +267,8 @@ class Vnet3dModule(object):
                                                                        self.channels))
                     index += 1
             # Extracting images and labels from given data
-            batch_xs = batch_xs.astype(np.float)
-            batch_ys = batch_ys.astype(np.float)
+            batch_xs = batch_xs.astype(np.float32)
+            batch_ys = batch_ys.astype(np.float32)
             # Normalize from [0:255] => [0.0:1.0]
             batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
             batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
