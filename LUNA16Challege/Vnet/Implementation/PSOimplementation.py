@@ -44,7 +44,7 @@ class PSOimplemntation :
         for w in range(0,len(list_particules[j].activations)): 
          sess.run(list_particules[j].activations[w])
          
-      
+      '''
         best_pos = PSO.evaluate_fitness(list_particules[j].best_pos)[0]       
         sess.run(best_pos)
         if(list_particules[j].fitness.eval() < best_pos.eval() ) :

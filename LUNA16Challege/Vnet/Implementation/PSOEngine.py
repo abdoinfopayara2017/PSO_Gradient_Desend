@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, 'E:/LUNA 16/PSOGD/LUNA16Challege/Vnet')
 
-from layer import (full_conv3d , valid_conv3d)
+#from layer import (full_conv3d , valid_conv3d)
 
 
 class PSOEngine :
