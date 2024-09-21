@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, 'E:/LUNA 16/PSOGD/LUNA16Challege/Vnet')
 
-#from layer import (full_conv3d , valid_conv3d)
+from layer import (full_conv3d , valid_conv3d)
 
 
 class PSOEngine :
@@ -96,88 +96,7 @@ class PSOEngine :
          particule.velocity[i]=tf.abs(particule.velocity[i])
        
        return particule 
-
-    def update_partial_derivatives_v0(self,particule) :
-        #chain rule
-        index = 0
-        #for i in range(0,len(particule.partial_derivative)//2):  
-        for i in range(0,1):              
-            
-            # Weight matrix layer k
-            Ωk= particule.position[-(2*(i+1))]                       
-            # derivative Bias Bk or Dli/Df(k)
-            particule.partial_derivative[index]=particule.dot_derivate            
-            particule.partial_derivative[index] =tf.where(tf.greater_equal(particule.partial_derivative[index],tf.constant(0,dtype=tf.float32))\
-                                                    ,tf.ones_like(particule.partial_derivative[index]),\
-                                                         tf.zeros_like(particule.partial_derivative[index]))
-            # derivative Ωk
-            # Hk activation layer k                        
-            index = + 1
-            matrix = particule.activations[-(i+2)]
-            particule.partial_derivative[index] = tf.matmul(particule.dot_derivate,\
-                                                            tf.transpose(matrix))
-            particule.partial_derivative[index]=tf.where(tf.greater_equal(particule.partial_derivative[index],0)\
-                                                    ,tf.constant(1),tf.constant(-1))
-            # Calculate Dli/Df(k-1)
-            if( (i+2) <= len(particule.pre_activations)) : 
-             matrix=particule.pre_activations[-(i+2)]
-             matrix=tf.where(tf.greater(matrix,0)\
-                    ,tf.constant(1),tf.constant(0))
-             particule.dot_derivate= tf.math.multiply(
-                 matrix,tf.math.multiply(particule.dot_derivate ,\
-                                tf.transpose(Ωk)))
-            index = + 1
         
-        particule.partial_derivative=particule.partial_derivative.reverse()
-        return particule
-    
-    def update_partial_derivatives(self,particule) :
-        #chain rule
-        index = 0
-        for i in range(0,len(particule.partial_derivative)//2):  
-          # Weight matrix layer k
-          Ωk= particule.position[-(2*(i+1))]                       
-          # derivative Bias Dli/Bk 
-          particule.partial_derivative[index]=particule.dot_derivate            
-          particule.partial_derivative[index] =tf.where(tf.greater_equal(particule.partial_derivative[index],tf.constant(0,dtype=tf.float32))\
-                ,tf.ones_like(particule.partial_derivative[index]),\
-               - tf.ones_like(particule.partial_derivative[index]))
-          # derivative Ωk
-          # Hk activation layer k                        
-          index = + 1
-          Hk = particule.activations[-(i+2)]
-          particule.partial_derivative[index] = valid_conv3d(Hk , particule.dot_derivate)
-          particule.partial_derivative[index]=tf.where(tf.greater_equal(particule.partial_derivative[index],tf.constant(0,dtype=tf.float32))\
-                ,tf.ones_like(particule.partial_derivative[index]),\
-               - tf.ones_like(particule.partial_derivative[index]))
-          # Calculate Dli/DH(k-1)
-          if((i+2) <= len(particule.pre_activations)) :
-            # 180-degree rotated Filter
-            Ωk = tf.image.rot90(Ωk, k=-2)
-            filter_shape = Ωk.shape.as_list()
-            pad_depth = filter_shape[0] - 1
-            pad_height = filter_shape[1] - 1
-            pad_width = filter_shape[2] - 1
-            padding_tensor = tf.pad(particule.dot_derivate,[[0,0],[pad_depth,pad_depth],\
-                                    [pad_height,pad_height],[pad_width,pad_width],[0,0]])  
-            padding_tensor = full_conv3d(padding_tensor,Ωk)
-            matrix=particule.pre_activations[-(i+2)]
-            matrix=tf.where(tf.greater(matrix,tf.constant(0,dtype=tf.float32))\
-                ,tf.ones_like(matrix),\
-                 tf.zeros_like(matrix))
-            
-            # Calculate Dli/DF(k-1)
-            particule.dot_derivate= tf.math.multiply(\
-                 matrix,padding_tensor)
-          index = + 1
-        
-        particule.partial_derivative=particule.partial_derivative.reverse()
-        return particule
-   
-    def updatePosition(particule):
-        particule.position = particule.position - tf.math.multiply(
-            particule.velocity,particule.partial_derivative)
-
     def padding_same(tensor , filter) :
       input_shape = tensor.shape.as_list()
       filter_shape = filter.shape.as_list() 
@@ -187,12 +106,58 @@ class PSOEngine :
       P_depth = filter_shape[0] - 1
       P_height = filter_shape[1] - 1
       P_width = filter_shape[2] - 1
-      padding = [[P_depth // 2 , P_depth - (P_depth//2)] , \
+      padding = [[0,0],
+        [P_depth // 2 , P_depth - (P_depth//2)] , \
                  [P_height // 2 , P_height - (P_height//2)] , \
-                 [P_width // 2 , P_width - (P_width//2)] ]
+                 [P_width // 2 , P_width - (P_width//2)],
+                 [0,0] ]
       tensor = tf.pad(tensor , padding)
       return tensor
 
+
+    def update_partial_derivatives(self,particule) :
+                
+        # update B33
+        index = -1
+        b33=tf.reduce_sum(particule.dot_derivate)
+        particule.partial_derivative[index]= b33
+        """ tf.where(
+            tf.greater_equal(b33,tf.constant(0,dtype=tf.float32))\
+           ,tf.ones_like(b33),- tf.ones_like(b33)) """ 
+
+        # update ω33
+        index = -2
+        H45 = particule.activations[index]
+        ω33 = tf.zeros(shape = particule.position[index].shape,dtype=tf.dtypes.float32)
+        for batch in range (0,6) :
+            par_deriv = particule.dot_derivate[batch:batch+1,:,:,:,0:1]            
+            input = H45[batch:batch+1,:,:,:,:]
+            for channel in range(0,32) :
+                input_ch = input[:,:,:,:,channel:channel+1]
+                filter = particule.position[index]
+                input_ch = PSOEngine.padding_same(input_ch,filter)
+                par_deriv = tf.reshape(par_deriv,(16,96,96,1,1))
+                outpout = valid_conv3d (input_ch,par_deriv)
+                
+                #print(input_ch.get_shape(),par_deriv.get_shape(),
+                      #outpout.get_shape())
+                indices = tf.constant([[0,0,0,channel,0]])                
+                ω33 = tf.tensor_scatter_nd_add(ω33,indices,
+                         tf.reduce_sum(outpout,[0,1,2,3]))
+        particule.partial_derivative[index]=tf.where(
+            tf.greater_equal(ω33,tf.constant(0,dtype=tf.float32))\
+           ,tf.ones_like(ω33),- tf.ones_like(ω33))  
+
+        
+
+
+        return particule
+   
+    def updatePosition(particule):
+        particule.position = particule.position - tf.math.multiply(
+            particule.velocity,particule.partial_derivative)
+
+    
        
 
 

@@ -39,16 +39,14 @@ class PSOimplemntation :
         print('accuracy swarm number %d is %f' % (j,accuracy))
         sess.run(list_particules[j].dot_derivate)        
         for w in range(0,len(list_particules[j].pre_activations)): 
-         sess.run(list_particules[j].pre_activations[w])
-         
+         sess.run(list_particules[j].pre_activations[w])         
         for w in range(0,len(list_particules[j].activations)): 
-         sess.run(list_particules[j].activations[w])
-         
-      '''
-        best_pos = PSO.evaluate_fitness(list_particules[j].best_pos)[0]       
-        sess.run(best_pos)
-        if(list_particules[j].fitness.eval() < best_pos.eval() ) :
-         list_particules[j].best_pos=list_particules[j].position.copy()
+         sess.run(list_particules[j].activations[w])      
+      
+        #best_pos = PSO.evaluate_fitness(list_particules[j].best_pos)[0]       
+        #sess.run(best_pos)
+        #if(list_particules[j].fitness.eval() < best_pos.eval() ) :
+        # list_particules[j].best_pos=list_particules[j].position.copy()
         
        # Find best particle in set
        gbest , gbest_fitness=PSO.find_gbest(list_particules)
@@ -68,7 +66,9 @@ class PSOimplemntation :
          sess.run(list_particules[j].velocity[w])
         list_particules[j] = PSO.update_partial_derivatives(list_particules[j])
         for w in range(0,len(list_particules[j].partial_derivative)) :
-         sess.run(list_particules[j].partial_derivative[w])
+         print(sess.run(list_particules[j].partial_derivative[w]))
+        
+       #
        # PSO.updatePosition(list_particules[j])
         
         #print("loss :",gbest.fitness)'''    

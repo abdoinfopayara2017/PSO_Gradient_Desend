@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, 'E:/LUNA 16/PSOGD/LUNA16Challege/Vnet')
+sys.path.insert(0, 'E:/LUNA 16/PSOGD V1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
                          weight_xavier_init, bias_variable, save_images)
@@ -81,220 +81,220 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     # layer1->convolution
     
     activations.append(inputX)
-    print('input shape : ', 
-           activations[-1].get_shape())
+    """ print('input shape : ', 
+           activations[-1].get_shape()) """
     layer0 = conv_bn_relu_drop(x=inputX,W=position[0],B=position[1],pre_activations=pre_activations,
                                activations=activations)
-    print('layer0_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer0_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer1 = conv_bn_relu_drop(x=layer0, W=position[2],B=position[3],pre_activations=pre_activations,
                                activations=activations)
-    print('layer1_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer1_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer1 = resnet_Add(x1=layer0, x2=layer1)
     activations.append(layer1)
-    print('layer1_2 , acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer1_2 , acti shape : ', 
+            activations[-1].get_shape()) """
     # down sampling1
     down1 = down_sampling(x=layer1,W=position[4],B=position[5],pre_activations=pre_activations,
                                activations=activations)
-    print('down1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('down1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
             
     # layer2->convolution
     layer2 = conv_bn_relu_drop(x=down1, W=position[6],B=position[7],pre_activations=pre_activations,
                                activations=activations)
-    print('layer2_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer2_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     
     layer2 = conv_bn_relu_drop(x=layer2, W=position[8],B=position[9],pre_activations=pre_activations,
                                activations=activations)
-    print('layer2_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer2_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     
     layer2 = resnet_Add(x1=down1, x2=layer2)
     activations.append(layer2)
-    print('layer2_3 , acti shape : ', 
-           activations[-1].get_shape())
+    """ print('layer2_3 , acti shape : ', 
+           activations[-1].get_shape()) """
     # down sampling2
     down2 = down_sampling(x=layer2, W=position[10],B=position[11],pre_activations=pre_activations,
                                activations=activations)
-    print('down2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('down2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer3->convolution
     layer3 = conv_bn_relu_drop(x=down2, W=position[12],B=position[13],pre_activations=pre_activations,
                                activations=activations)
-    print('layer3_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer3_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer3 = conv_bn_relu_drop(x=layer3, W=position[14],B=position[15],pre_activations=pre_activations,
                                activations=activations)
-    print('layer3_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer3_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer3 = conv_bn_relu_drop(x=layer3, W=position[16],B=position[17],pre_activations=pre_activations,
                                activations=activations)
-    print('layer3_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer3_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer3 = resnet_Add(x1=down2, x2=layer3)
     activations.append(layer3)
-    print('layer3_4 , pre-acti shape , acti shape : ', 
-           activations[-1].get_shape())
+    """ print('layer3_4 , pre-acti shape , acti shape : ', 
+           activations[-1].get_shape()) """
     # down sampling3
     down3 = down_sampling(x=layer3, W=position[18],B=position[19],pre_activations=pre_activations,
                                activations=activations)
-    print('down3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('down3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer4->convolution
     layer4 = conv_bn_relu_drop(x=down3, W=position[20],B=position[21],pre_activations=pre_activations,
                                activations=activations)
-    print('layer4_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer4_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer4 = conv_bn_relu_drop(x=layer4, W=position[22],B=position[23],pre_activations=pre_activations,
                                activations=activations)
-    print('layer4_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer4_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer4 = conv_bn_relu_drop(x=layer4, W=position[24],B=position[25],pre_activations=pre_activations,
                                activations=activations)
-    print('layer4_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer4_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer4 = resnet_Add(x1=down3, x2=layer4)
     activations.append(layer4)
-    print('layer4_4 , acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer4_4 , acti shape : ', 
+            activations[-1].get_shape()) """
     # down sampling4
     down4 = down_sampling(x=layer4, W=position[26],B=position[27],pre_activations=pre_activations,
                                activations=activations)
-    print('down4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('down4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer5->convolution
     layer5 = conv_bn_relu_drop(x=down4, W=position[28],B=position[29],pre_activations=pre_activations,
                                activations=activations)
-    print('layer5_1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer5_1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer5 = conv_bn_relu_drop(x=layer5, W=position[30],B=position[31],pre_activations=pre_activations,
                                activations=activations)
-    print('layer5_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer5_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer5 = conv_bn_relu_drop(x=layer5, W=position[32],B=position[33],pre_activations=pre_activations,
                                activations=activations)
-    print('layer5_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer5_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer5 = resnet_Add(x1=down4, x2=layer5)
     activations.append(layer5)
-    print('layer5_4 ,  acti shape : ', 
-                    activations[-1].get_shape())
+    """ print('layer5_4 ,  acti shape : ', 
+                    activations[-1].get_shape()) """
     # layer9->deconvolution
     deconv1 = deconv_relu(x=layer5, W=position[34],B=position[35],pre_activations=pre_activations,
                                activations=activations)
-    print('deconv1 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('deconv1 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer8->convolution
     layer6 = crop_and_concat(layer4, deconv1)
     activations.append(layer6)
-    print('layer6_1 , pre-acti shape , acti shape : ', 
-            activations[-1].get_shape())   
+    """ print('layer6_1 , pre-acti shape , acti shape : ', 
+            activations[-1].get_shape())  """  
     
     layer6 = conv_bn_relu_drop(x=layer6, W=position[36],B=position[37],pre_activations=pre_activations,
                                activations=activations)
-    print('layer6_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer6_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer6 = conv_bn_relu_drop(x=layer6, W=position[38],B=position[39],pre_activations=pre_activations,
                                activations=activations)
-    print('layer6_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer6_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer6 = conv_bn_relu_drop(x=layer6, W=position[40],B=position[41],pre_activations=pre_activations,
                                activations=activations)
-    print('layer6_4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer6_4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer6 = resnet_Add(x1=deconv1, x2=layer6)
     activations.append(layer6)
-    print('layer6_5 ,  acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer6_5 ,  acti shape : ', 
+            activations[-1].get_shape()) """
     # layer9->deconvolution
     deconv2 = deconv_relu(x=layer6, W=position[42],B=position[43],pre_activations=pre_activations,
                                activations=activations)
-    print('deconv2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('deconv2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer8->convolution
     layer7 = crop_and_concat(layer3, deconv2)
     activations.append(layer7)
-    print('layer7_1 , acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer7_1 , acti shape : ', 
+            activations[-1].get_shape()) """
    
     layer7 = conv_bn_relu_drop(x=layer7, W=position[44],B=position[45],pre_activations=pre_activations,
                                activations=activations)
-    print('layer7_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer7_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer7 = conv_bn_relu_drop(x=layer7, W=position[46],B=position[47],pre_activations=pre_activations,
                                activations=activations)
-    print('layer7_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer7_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer7 = conv_bn_relu_drop(x=layer7, W=position[48],B=position[49],pre_activations=pre_activations,
                                activations=activations)
-    print('layer7_4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer7_4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer7 = resnet_Add(x1=deconv2, x2=layer7)
     activations.append(layer7)
-    print('layer7_5 , acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer7_5 , acti shape : ', 
+            activations[-1].get_shape()) """
 
     # layer9->deconvolution
     deconv3 = deconv_relu(x=layer7, W=position[50],B=position[51],pre_activations=pre_activations,
                                activations=activations)
-    print('deconv3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('deconv3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer8->convolution
     layer8 = crop_and_concat(layer2, deconv3)
     activations.append(layer8)
-    print('layer8_1 ,  acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer8_1 ,  acti shape : ', 
+            activations[-1].get_shape()) """
     
     layer8 = conv_bn_relu_drop(x=layer8, W=position[52],B=position[53],pre_activations=pre_activations,
                                activations=activations)
-    print('layer8_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer8_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer8 = conv_bn_relu_drop(x=layer8, W=position[54],B=position[55],pre_activations=pre_activations,
                                activations=activations)
-    print('layer8_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer8_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer8 = conv_bn_relu_drop(x=layer8, W=position[56],B=position[57],pre_activations=pre_activations,
                                activations=activations)
-    print('layer8_4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer8_4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer8 = resnet_Add(x1=deconv3, x2=layer8)
     activations.append(layer8)
-    print('layer8_5 ,acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer8_5 ,acti shape : ', 
+            activations[-1].get_shape()) """
     # layer9->deconvolution
     deconv4 = deconv_relu(x=layer8, W=position[58],B=position[59],pre_activations=pre_activations,
                                activations=activations)
-    print('deconv4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('deconv4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     # layer8->convolution
     layer9 = crop_and_concat(layer1, deconv4)
     activations.append(layer9)
-    print('layer9_1 ,  acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer9_1 ,  acti shape : ', 
+            activations[-1].get_shape()) """
     layer9 = conv_bn_relu_drop(x=layer9, W=position[60],B=position[61],pre_activations=pre_activations,
                                activations=activations)
-    print('layer9_2 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer9_2 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer9 = conv_bn_relu_drop(x=layer9, W=position[62],B=position[63],pre_activations=pre_activations,
                                activations=activations)
-    print('layer9_3 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer9_3 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer9 = conv_bn_relu_drop(x=layer9, W=position[64],B=position[65],pre_activations=pre_activations,
                                activations=activations)
-    print('layer9_4 , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('layer9_4 , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     layer9 = resnet_Add(x1=deconv4, x2=layer9)
     activations.append(layer9)
-    print('layer9_5 , acti shape : ', 
-            activations[-1].get_shape())
+    """ print('layer9_5 , acti shape : ', 
+            activations[-1].get_shape()) """
     # layer14->output
     output_map = conv_sigmod(x=layer9, W=position[66],B=position[67],pre_activations=pre_activations,
                                activations=activations)
-    print('output_map , pre-acti shape , acti shape : ', 
-           pre_activations[-1].get_shape() , activations[-1].get_shape())
+    """ print('output_map , pre-acti shape , acti shape : ', 
+           pre_activations[-1].get_shape() , activations[-1].get_shape()) """
     return output_map , pre_activations , activations
 
 class Vnet3dModule(object):

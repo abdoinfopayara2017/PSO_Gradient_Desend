@@ -116,7 +116,7 @@ def max_pool3d(x, depth=False):
 
 # Unet crop and concat
 def crop_and_concat(x1, x2):
-    print('shape of x1 ',x1.get_shape().as_list())
+    
     x1_shape = tf.shape(x1)
     x2_shape = tf.shape(x2)   
     # offsets for the top left corner of the crop
@@ -124,9 +124,6 @@ def crop_and_concat(x1, x2):
                (x1_shape[2] - x2_shape[2]) // 2, (x1_shape[3] - x2_shape[3]) // 2, 0]
     size = [-1, x2_shape[1], x2_shape[2], x2_shape[3], -1]
     x1_crop = tf.slice(x1, offsets, size)
-    print('shape of x1_crop ',x1_crop.get_shape().as_list())
-    print('shape of x2',x2.get_shape().as_list())
-    print('shape of concat', tf.concat([x1_crop, x2], 4).get_shape().as_list())
     return tf.concat([x1_crop, x2], 4)
 
 
