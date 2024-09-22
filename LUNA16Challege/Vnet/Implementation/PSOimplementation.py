@@ -13,7 +13,7 @@ class PSOimplemntation :
         self.social=social
         self.weight=weight
 
-    #@tf.function 
+     
     def lunch(self):
      
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight)
@@ -35,7 +35,6 @@ class PSOimplemntation :
         list_particules[j].pre_activations , list_particules[j].activations \
         = PSO.evaluate_fitness(list_particules[j].position)
         accuracy=-sess.run(list_particules[j].fitness)
-        sess.run(list_particules[j].fitness)
         print('accuracy swarm number %d is %f' % (j,accuracy))
         sess.run(list_particules[j].dot_derivate)        
         for w in range(0,len(list_particules[j].pre_activations)): 
@@ -74,13 +73,13 @@ class PSOimplemntation :
         #print("loss :",gbest.fitness)'''    
        
 
-def launch_pso():
+    def launch_pso():
    
-   psoimplemntation = PSOimplemntation(nb_iteration=1,
+     psoimplemntation = PSOimplemntation(nb_iteration=1,
                swarm_size=1,cognitive=2,social=2,weight=0.9)
-   psoimplemntation.lunch()
+     psoimplemntation.lunch()
 
-launch_pso()    
+    launch_pso()    
 
 
            
