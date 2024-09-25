@@ -23,10 +23,20 @@ class PSOimplemntation :
      with tf.Session() as sess:
       sess.run(init)
       # initialisation des parametres 
-      for i in range(0,self.swarm_size) :
-       for j in range(0,len(list_particules[0].position)) :
-        sess.run(list_particules[i].position[j])     
-      
+      for p in range(0,len(list_particules)) :
+        for j in range(0,len(list_particules[p].position)) :
+          sess.run(list_particules[p].position[j])
+          # Evaluate the particles positions;
+          list_particules[p].fitness , list_particules[p].dot_derivate ,\
+          list_particules[p].pre_activations , list_particules[p].activations \
+          = PSO.evaluate_fitness(list_particules[p].position)
+          # for each particle i do Pbesti = xi;
+          list_particules[p].fitness_best_pos =  list_particules[p].fitness
+          list_particules[p].best_pos =  list_particules[p].position.copy()
+          
+      # Find best particle in set
+      gbest , gbest_fitness=PSO.find_gbest(list_particules)
+           
       # PSO boucle
       for i in range(0,self.nb_iteration):
        # Find the best for each particle
@@ -50,7 +60,7 @@ class PSOimplemntation :
        # Find best particle in set
        gbest , gbest_fitness=PSO.find_gbest(list_particules)
        print('the best solution : ', gbest_fitness )
-        # Initialize the random vectors for updates
+       # Initialize the random vectors for updates
        r1=np.empty(len(list_particules[0].position),dtype=object) 
        r2=np.empty(len(list_particules[0].position),dtype=object) 
        for j in range(0,len(list_particules[0].position)):
@@ -65,21 +75,21 @@ class PSOimplemntation :
          sess.run(list_particules[j].velocity[w])
         list_particules[j] = PSO.update_partial_derivatives(list_particules[j])
         for w in range(0,len(list_particules[j].partial_derivative)) :
-         print(sess.run(list_particules[j].partial_derivative[w]))
-        
-       #
-       # PSO.updatePosition(list_particules[j])
+         if w == len(list_particules[j].partial_derivative) - 3 :
+          print(sess.run(list_particules[j].partial_derivative[w]))
+        #for w in range(0,len(list_particules[j])) :        
+         #PSO.updatePosition(list_particules[j])
         
         #print("loss :",gbest.fitness)'''    
        
 
-    def launch_pso():
+def launch_pso():
    
      psoimplemntation = PSOimplemntation(nb_iteration=1,
-               swarm_size=1,cognitive=2,social=2,weight=0.9)
+                          swarm_size=1,cognitive=2,social=2,weight=0.9)
      psoimplemntation.lunch()
 
-    launch_pso()    
+launch_pso()    
 
 
            

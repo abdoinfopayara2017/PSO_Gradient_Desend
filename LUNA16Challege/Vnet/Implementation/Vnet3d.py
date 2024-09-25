@@ -629,18 +629,12 @@ def weight_xavier_init_particule():
 
 def lunch():  
         
-        #with tf.Graph().as_default():
-            list_weights_all_layers=weight_xavier_init_particule()        
-            #init = tf.global_variables_initializer()    
-            #with tf.Session() as sess:
-            #    sess.run(init)
-            #    sess.run(list_weights_all_layers)
-            #    print(sess.run(tf.is_variable_initialized(
-            #         list_weights_all_layers[0])))  
+       
+            list_weights_all_layers=weight_xavier_init_particule()            
                                     
             return list_weights_all_layers       
     
-#lunch()
+
 
 
 

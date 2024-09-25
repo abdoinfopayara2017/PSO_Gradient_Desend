@@ -117,15 +117,14 @@ class PSOEngine :
 
     def update_partial_derivatives(self,particule) :
                 
-        # update B33
+        # update D L/D B33
         index = -1
-        b33=tf.reduce_sum(particule.dot_derivate)
-        particule.partial_derivative[index]= b33
-        """ tf.where(
-            tf.greater_equal(b33,tf.constant(0,dtype=tf.float32))\
-           ,tf.ones_like(b33),- tf.ones_like(b33)) """ 
+        d_b33=tf.reduce_sum(particule.dot_derivate)
+        particule.partial_derivative[index]= tf.where(
+            tf.greater_equal(d_b33,tf.constant(0,dtype=tf.float32))\
+           ,tf.ones_like(d_b33),- tf.ones_like(d_b33))  
 
-        # update ω33
+        # update D L/D ω33
         index = -2
         H45 = particule.activations[index]
         ω33 = tf.zeros(shape = particule.position[index].shape,dtype=tf.dtypes.float32)
@@ -137,19 +136,42 @@ class PSOEngine :
                 filter = particule.position[index]
                 input_ch = PSOEngine.padding_same(input_ch,filter)
                 par_deriv = tf.reshape(par_deriv,(16,96,96,1,1))
-                outpout = valid_conv3d (input_ch,par_deriv)
-                
-                #print(input_ch.get_shape(),par_deriv.get_shape(),
-                      #outpout.get_shape())
+                outpout = valid_conv3d (input_ch,par_deriv)              
                 indices = tf.constant([[0,0,0,channel,0]])                
                 ω33 = tf.tensor_scatter_nd_add(ω33,indices,
                          tf.reduce_sum(outpout,[0,1,2,3]))
         particule.partial_derivative[index]=tf.where(
             tf.greater_equal(ω33,tf.constant(0,dtype=tf.float32))\
-           ,tf.ones_like(ω33),- tf.ones_like(ω33))  
+           ,tf.ones_like(ω33),- tf.ones_like(ω33))
 
+        # update D L/D H45        
+        filter =  particule.position[index]
+        list_batch = []
+        for batch in range (0,6) :
+            par_deriv = particule.dot_derivate[batch:batch+1,:,:,:,0:1]            
+            list_channel = []
+            for channel in range(0,32) :                
+                filter_channel = filter[:,:,:,channel:channel+1,:]
+                outpout = valid_conv3d (par_deriv,filter_channel)
+                list_channel.append(outpout[0,:,:,:,0])                
+            tensor_stacked_channel = tf.stack(list_channel, axis=3)
+            list_batch.append(tensor_stacked_channel)       
+        d_h45 = tf.stack(list_batch, axis=0)        
         
-
+        # update D L/D H44
+        d_h44 = d_h45
+       
+        # update D L/D F32
+        index = -3
+        H44 = particule.activations[index]
+        H44 = tf.where(
+            tf.greater(H44,tf.constant(0,dtype=tf.float32))\
+           ,tf.ones_like(H44), tf.zeros_like(H44))
+        d_f32 = tf.multiply(H44 , d_h44)
+        # update D L/D B32
+        d_b32 = tf.reduce_sum(d_f32,[0,1,2,3])
+        particule.partial_derivative[index] = d_b32
+           
 
         return particule
    
