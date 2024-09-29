@@ -175,9 +175,11 @@ class PSOEngine :
 
         return particule
    
-    def updatePosition(particule):
-        particule.position = particule.position - tf.math.multiply(
-            particule.velocity,particule.partial_derivative)
+    def update_position(self,particule):
+        for i in range(0,len(particule.position)) :
+         particule.position[i] = particule.position[i] - tf.math.multiply(
+            particule.velocity[i],particule.partial_derivative[i])
+        return particule
 
     
        

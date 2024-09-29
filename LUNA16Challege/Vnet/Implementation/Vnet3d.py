@@ -295,7 +295,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
                                activations=activations)
     """ print('output_map , pre-acti shape , acti shape : ', 
            pre_activations[-1].get_shape() , activations[-1].get_shape()) """
-    return output_map , pre_activations , activations
+    
+    
+    
+    return output_map #, pre_activations , activations
 
 class Vnet3dModule(object):
     def __init__(self, image_height, image_width, image_depth, channels=1):
@@ -334,13 +337,17 @@ class Vnet3dModule(object):
         batch_ys=np.float32(batch_ys)
         
         # Make prediction
-        Y_pred , pre_activation , activation =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
+        #Y_pred , pre_activation , activation
+        Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
         train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
-        
-        dY_pred=derivative_cost(-train_loss , tf.convert_to_tensor(batch_ys) , activation[-1])
-        derisigmoid=derivative_sigmoid(pre_activation[-1])
+        position_to_tensor = []
+        for num in range(len(position)):
+         position_to_tensor.append(tf.convert_to_tensor(position[num]))
+        derivative_position = tf.gradients(train_loss , position_to_tensor) 
+       #dY_pred=derivative_cost(-train_loss , tf.convert_to_tensor(batch_ys) , activation[-1])
+       #derisigmoid=derivative_sigmoid(pre_activation[-1])
                
-        return train_loss , tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+        return train_loss , derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
                  
 
 def weight_xavier_init_particule():
