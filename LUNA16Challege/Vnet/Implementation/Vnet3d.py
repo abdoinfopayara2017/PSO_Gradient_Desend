@@ -12,6 +12,9 @@ import random
 
 
 
+
+
+
 def conv_bn_relu_drop(x, W, B,pre_activations,activations):
     conv = conv3d(x, W) + B    
     pre_activations.append(conv)    
@@ -308,46 +311,42 @@ class Vnet3dModule(object):
         self.channels = channels        
 
     def train(self, train_images, train_lanbels,position,
-               batch_size=1):  
+               batch_size=1):        
         
-        index_in_epoch=random.randrange(0, train_images.shape[0]-batch_size)
-        # get new batch
-        batch_xs_path, batch_ys_path = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
-        batch_xs = np.empty((len(batch_xs_path), self.image_depth, self.image_height, self.image_width,
-                                    self.channels))
-        batch_ys = np.empty((len(batch_ys_path), self.image_depth, self.image_height, self.image_width,
-                                    self.channels))
-        for num in range(len(batch_xs_path)):
-            index = 0
-            for _ in os.listdir(batch_xs_path[num][0]):
-                image = cv2.imread(batch_xs_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
-                label = cv2.imread(batch_ys_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
-                batch_xs[num, index, :, :, :] = np.reshape(image, (self.image_height, self.image_width,
-                                                                        self.channels))
-                batch_ys[num, index, :, :, :] = np.reshape(label, (self.image_height, self.image_width,
-                                                                        self.channels))
-                index += 1
-            # Extracting images and labels from given data
-        batch_xs = batch_xs.astype(np.float)
-        batch_ys = batch_ys.astype(np.float)
-        # Normalize from [0:255] => [0.0:1.0]
-        batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
-        batch_xs=np.float32(batch_xs)
-        batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
-        batch_ys=np.float32(batch_ys)
-        
-        # Make prediction
-        #Y_pred , pre_activation , activation
-        Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
-        train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
-        position_to_tensor = []
-        for num in range(len(position)):
-         position_to_tensor.append(tf.convert_to_tensor(position[num]))
-        derivative_position = tf.gradients(train_loss , position_to_tensor) 
-       #dY_pred=derivative_cost(-train_loss , tf.convert_to_tensor(batch_ys) , activation[-1])
-       #derisigmoid=derivative_sigmoid(pre_activation[-1])
-               
-        return train_loss , derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+         index_in_epoch=random.randrange(0, train_images.shape[0]-batch_size)
+         # get new batch
+         batch_xs_path, batch_ys_path = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
+         batch_xs = np.empty((len(batch_xs_path), self.image_depth, self.image_height, self.image_width,
+                                          self.channels))
+         batch_ys = np.empty((len(batch_ys_path), self.image_depth, self.image_height, self.image_width,
+                                          self.channels))
+         for num in range(len(batch_xs_path)):
+          index = 0
+          for _ in os.listdir(batch_xs_path[num][0]):
+               image = cv2.imread(batch_xs_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
+               label = cv2.imread(batch_ys_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
+               batch_xs[num, index, :, :, :] = np.reshape(image, (self.image_height, self.image_width,
+                                                                             self.channels))
+               batch_ys[num, index, :, :, :] = np.reshape(label, (self.image_height, self.image_width,
+                                                                             self.channels))
+               index += 1
+             # Extracting images and labels from given data
+         batch_xs = batch_xs.astype(np.float)
+         batch_ys = batch_ys.astype(np.float)
+         # Normalize from [0:255] => [0.0:1.0]
+         batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
+         batch_xs=np.float32(batch_xs)
+         batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
+         batch_ys=np.float32(batch_ys)     
+         
+         with tf.GradientTape() as tape:
+            Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
+            train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
+            position_list = list(position)
+            derivative_position = \
+                  tape.gradient(train_loss,position_list)
+                          
+         return train_loss , derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
                  
 
 def weight_xavier_init_particule():

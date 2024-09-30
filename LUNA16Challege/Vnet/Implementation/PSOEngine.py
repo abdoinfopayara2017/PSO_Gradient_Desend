@@ -57,8 +57,9 @@ class PSOEngine :
     
     
     def find_gbest(self,particles):
-       particles = sorted(particles, key=lambda Particle: Particle.fitness.eval())   # sort by fitness
-       return particles[0].position , particles[0].fitness.eval() 
+       
+       particles = sorted(particles, key=lambda Particle: Particle.fitness.numpy())   # sort by fitness
+       return particles[0].position , particles[0].fitness.numpy() 
 
     def update_velocity(self,particule,gbest,r1,r2):
        inertia_term = np.empty(len(particule.velocity),dtype=object)
@@ -177,8 +178,8 @@ class PSOEngine :
    
     def update_position(self,particule):
         for i in range(0,len(particule.position)) :
-         particule.position[i] = particule.position[i] - tf.math.multiply(
-            particule.velocity[i],particule.partial_derivative[i])
+         particule.position[i].assign ( particule.position[i] - tf.math.multiply(
+            particule.velocity[i],particule.partial_derivative[i]))
         return particule
 
     
