@@ -113,8 +113,8 @@ class PSOimplemntation :
 
 def launch_pso():
    
-     psoimplemntation = PSOimplemntation(nb_iteration=1,
-                          swarm_size=1,cognitive=2,social=2,weight=0.9)
+     psoimplemntation = PSOimplemntation(nb_iteration=3,
+                          swarm_size=5,cognitive=2,social=2,weight=0.9)
      psoimplemntation.lunch()
 
 launch_pso()    
