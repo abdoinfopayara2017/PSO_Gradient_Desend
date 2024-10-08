@@ -15,12 +15,13 @@ from layer import (full_conv3d , valid_conv3d)
 
 class PSOEngine :
     
-    def __init__(self,num_particles,c1,c2,w):
+    def __init__(self,num_particles,c1,c2,w,index_in_epoch):
         
         self.num_particles=num_particles        
         self.c1=c1
         self.c2=c2
         self.w=w
+        self.index_in_epoch = index_in_epoch
 
     def evaluate_fitness(self,position):
         path_mask = Path(__file__).parent / "..\..\dataprocess\data\Segmentation3dMask.csv"
@@ -39,7 +40,7 @@ class PSOEngine :
                 imagedata = imagedata[perm]
                 maskdata = maskdata[perm]
                 Vnet3d = vnet3d.Vnet3dModule(96, 96, 16, channels=1)
-                return Vnet3d.train(imagedata, maskdata,position,6)
+                return Vnet3d.train(imagedata, maskdata,position,6,self.index_in_epoch)
 
     
     def init_particles(self,list_particules):
@@ -52,14 +53,21 @@ class PSOEngine :
             list_weights_all_layers = lunch()
             
             p=Particle(list_weights_all_layers)                      
+            
             list_particules.append(p)
         return list_particules
     
     
-    def find_gbest(self,particles):
+    def find_gbest(self,particles,gbest,gbest_fitness):
        
-       particles = sorted(particles, key=lambda Particle: Particle.fitness.numpy())   # sort by fitness
-       return particles[0].position , particles[0].fitness.numpy() 
+       particles = sorted(particles, key=lambda Particle: Particle.fitness_best_pos.numpy())   # sort by fitness
+       
+       gbest_fitness.assign(particles[0].fitness_best_pos)
+       
+       for w in range(0,len(particles[0].position)):
+        gbest[w].assign (particles[0].position[w])
+       
+       return gbest , gbest_fitness 
 
     def update_velocity(self,particule,gbest,r1,r2):
        inertia_term = np.empty(len(particule.velocity),dtype=object)
@@ -83,7 +91,9 @@ class PSOEngine :
        difference2 = np.empty(len(particule.position),dtype=object)
        for i in range (0,len(particule.position)) : 
         difference2[i] = tf.subtract(gbest[i] , particule.position[i])
+       
         
+       
        c2_timesr2 = np.empty(len(r2),dtype=object) 
        for i in range (0,len(r2)) :
         c2_timesr2[i] = tf.multiply(tf.convert_to_tensor(r2[i],dtype=tf.float32) , self.c2)
@@ -93,8 +103,8 @@ class PSOEngine :
          social_term[i] = tf.multiply(difference2[i] , c2_timesr2[i])
         
        for i in range (0,len(particule.velocity)) : 
-         particule.velocity[i] = tf.add(tf.add(inertia_term[i] , cognitive_term[i]) , social_term[i])
-         particule.velocity[i]=tf.abs(particule.velocity[i])
+         particule.velocity[i].assign(tf.add(tf.add(inertia_term[i] , cognitive_term[i]) , social_term[i]))
+         particule.velocity[i].assign(tf.abs(particule.velocity[i]))
        
        return particule 
         
@@ -178,8 +188,8 @@ class PSOEngine :
    
     def update_position(self,particule):
         for i in range(0,len(particule.position)) :
-         particule.position[i].assign ( particule.position[i] - tf.math.multiply(
-            particule.velocity[i],particule.partial_derivative[i]))
+         particule.position[i].assign (tf.subtract(particule.position[i], tf.math.multiply(
+            particule.velocity[i],particule.partial_derivative[i])))
         return particule
 
     

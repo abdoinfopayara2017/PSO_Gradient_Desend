@@ -15,31 +15,42 @@ class PSOimplemntation :
         self.weight=weight
 
      
-    def lunch(self):
+    def lunch(self):     
      
-     PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight)
+     PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
      list_particules=[]    
-     list_particules=PSO.init_particles(list_particules)      
-      # initialisation des parametres 
+     list_particules=PSO.init_particles(list_particules)
+     gbest=np.empty(len(list_particules[0].position),dtype=object)
+     for w in range(0,len(gbest)):            
+        gbest[w]=tf.Variable(initial_value=tf.constant(0.0,shape=list_particules[0].position[w].get_shape()),
+                    shape=list_particules[0].position[w].get_shape(),dtype=tf.float32)      
+     gbest_fitness=tf.Variable(0,dtype=tf.float32)
+     
+     # initialisation des parametres 
      for p in range(0,len(list_particules)) :        
-      list_particules[p].fitness , list_particules[p].partial_derivative = \
+      
+      list_particules[p].fitness , list_particules[p].partial_derivative ,PSO.index_in_epoch = \
         PSO.evaluate_fitness(list_particules[p].position)
         
-      for w in range(0,len(list_particules[p].partial_derivative)) :         
-         list_particules[p].partial_derivative[w]=tf.where(
-            tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
-           ,tf.ones_like(list_particules[p].partial_derivative[w]),- tf.ones_like(list_particules[p].partial_derivative[w]))
+      with tf.device('/cpu:0'):
+        for w in range(0,len(list_particules[p].partial_derivative)) :         
+          list_particules[p].partial_derivative[w]=tf.where(
+              tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
+            ,tf.ones_like(list_particules[p].partial_derivative[w]),- tf.ones_like(list_particules[p].partial_derivative[w]))
                 
       # for each particle i do Pbesti = xi;
-      list_particules[p].fitness_best_pos =  list_particules[p].fitness
-      list_particules[p].best_pos =  list_particules[p].position.copy()
+      list_particules[p].fitness_best_pos.assign( list_particules[p].fitness)     
+      for w in range(0,len(list_particules[p].position)):
+       list_particules[p].best_pos[w].assign (list_particules[p].position[w])
           
-      # Find best particle in set
-     gbest , gbest_fitness=PSO.find_gbest(list_particules)
+     # Find best particle in set
+     gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest,gbest_fitness)
+    
            
      # PSO boucle
      # for each iteration do
-     for i in range(0,self.nb_iteration):
+     with tf.device('/cpu:0'):
+      for i in range(0,self.nb_iteration):
         # for each particle p do
         for j in range(0,len(list_particules)):
             #update the velocity and the position
@@ -48,73 +59,53 @@ class PSOimplemntation :
             r2=np.empty(len(list_particules[0].position),dtype=object) 
             for r in range(0,len(list_particules[0].position)):
                 r1[r]=np.random.rand(*list_particules[0].position[r].get_shape())
-                r2[r]=np.random.rand(*list_particules[0].position[r].get_shape())
+                r2[r]=np.random.rand(*list_particules[0].position[r].get_shape())           
             
-            list_particules[j] = PSO.update_velocity(list_particules[j],gbest,r1,r2)
+            print('fitness for  particule %d is %.5f' % (j,list_particules[j].fitness_best_pos.numpy()))
+            list_particules[j] = PSO.update_velocity(list_particules[j],gbest,r1,r2)            
+            print('position befor for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             list_particules[j] = PSO.update_position(list_particules[j])
+            print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             
             # move the particle and evaluate its fitness
-            list_particules[j].fitness , list_particules[j].partial_derivative = \
+            list_particules[j].fitness , list_particules[j].partial_derivative ,PSO.index_in_epoch= \
                 PSO.evaluate_fitness(list_particules[j].position)
+           
             for w in range(0,len(list_particules[j].partial_derivative)) : 
               list_particules[j].partial_derivative[w]=tf.where(
                 tf.greater_equal(list_particules[j].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
              ,tf.ones_like(list_particules[j].partial_derivative[w]),- tf.ones_like(list_particules[j].partial_derivative[w]))
              
             #update Pbest
+           
             bool = tf.less(list_particules[j].fitness,
                         list_particules[j].fitness_best_pos).numpy()
             if (bool):
-             list_particules[j].fitness_best_pos = list_particules[j].fitness
-             list_particules[j].best_pos =  list_particules[j].position.copy()
+             list_particules[j].fitness_best_pos =  list_particules[j].fitness
+             for w in range(0,len(list_particules[p].position)):
+              list_particules[j].best_pos[w].assign (list_particules[j].position[w])
+             
             
         #update Gbest 
-        gbest , gbest_fitness=PSO.find_gbest(list_particules)
-            
-        
-        print('iteration %d Gbest solution %.5f ' % (i, gbest_fitness))
-        
-        '''list_particules[j].fitness , list_particules[j].dot_derivate ,\
-        list_particules[j].pre_activations , list_particules[j].activations \
-        = PSO.evaluate_fitness(list_particules[j].position)
-        accuracy=-sess.run(list_particules[j].fitness)
-        print('accuracy swarm number %d is %f' % (j,accuracy))
-        sess.run(list_particules[j].dot_derivate)        
-        for w in range(0,len(list_particules[j].pre_activations)): 
-         sess.run(list_particules[j].pre_activations[w])         
-        for w in range(0,len(list_particules[j].activations)): 
-         sess.run(list_particules[j].activations[w])      
-      
-        #best_pos = PSO.evaluate_fitness(list_particules[j].best_pos)[0]       
-        #sess.run(best_pos)
-        #if(list_particules[j].fitness.eval() < best_pos.eval() ) :
-        # list_particules[j].best_pos=list_particules[j].position.copy()
-        
-       # Find best particle in set
-       gbest , gbest_fitness=PSO.find_gbest(list_particules)
-       print('the best solution : ', gbest_fitness )
+        gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
        
+        PSO.w = 1 - abs(gbest_fitness)
+        PSO.c1 = PSO.w * 2
+        PSO.c2 = 2 - PSO.c1
+        """if i % 10 ==0 : """ 
+        """ PSO.w = PSO.w / 1000
+        PSO.c1 = PSO.c1 / 1000
+        PSO.c2 = PSO.c2  / 1000 """  
         
-       # Update the velocity and position vectors
-       for j in range(0,len(list_particules)):
-        
-        
-        for w in range(0,len(list_particules[j].velocity)) :
-         sess.run(list_particules[j].velocity[w])
-        list_particules[j] = PSO.update_partial_derivatives(list_particules[j])
-        for w in range(0,len(list_particules[j].partial_derivative)) :
-         if w == len(list_particules[j].partial_derivative) - 3 :
-          print(sess.run(list_particules[j].partial_derivative[w]))
-        #for w in range(0,len(list_particules[j])) :        
-         #PSO.updatePosition(list_particules[j])
-        
-        #print("loss :",gbest.fitness)'''    
+        """ print('iteration %d Gbest solution %.5f and weight %.5f c1 %.5f , c2 %.5f' 
+              % (i, gbest_fitness,PSO.w,PSO.c1,PSO.c2)) """
+                   
        
 
 def launch_pso():
    
-     psoimplemntation = PSOimplemntation(nb_iteration=1,
-                          swarm_size=1,cognitive=2,social=2,weight=0.9)
+     psoimplemntation = PSOimplemntation(nb_iteration=10,
+                          swarm_size=2,cognitive=1.8,social=0.2,weight=0.9)
      psoimplemntation.lunch()
 
 launch_pso()    
