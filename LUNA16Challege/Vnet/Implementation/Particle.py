@@ -23,7 +23,7 @@ class Particle:
             self.best_pos[i]=tf.Variable(initial_value=tf.constant(0.0,shape=data[i].get_shape()),
                                          shape=data[i].get_shape(),dtype=tf.float32)
             self.velocity[i]=tf.Variable(shape=data[i].get_shape(),dtype=tf.float32,
-                                             initial_value=tf.constant(0.001,shape=data[i].get_shape()))
+                                             initial_value=tf.constant(0.00001,shape=data[i].get_shape()))
              #np.zeros(shape=data[i].get_shape())
 
             #self.partial_derivative[i]=np.zeros(shape=data[i].get_shape())

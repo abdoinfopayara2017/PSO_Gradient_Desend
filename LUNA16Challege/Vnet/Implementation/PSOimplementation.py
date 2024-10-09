@@ -61,11 +61,11 @@ class PSOimplemntation :
                 r1[r]=np.random.rand(*list_particules[0].position[r].get_shape())
                 r2[r]=np.random.rand(*list_particules[0].position[r].get_shape())           
             
-            print('fitness for  particule %d is %.5f' % (j,list_particules[j].fitness_best_pos.numpy()))
+            #print('fitness for  particule %d is %.5f' % (j,list_particules[j].fitness_best_pos.numpy()))
             list_particules[j] = PSO.update_velocity(list_particules[j],gbest,r1,r2)            
-            print('position befor for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
+            #print('velocity  for particule %d is  ', j,list_particules[j].velocity[0][0,0,0,0,:])
             list_particules[j] = PSO.update_position(list_particules[j])
-            print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
+            #print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             
             # move the particle and evaluate its fitness
             list_particules[j].fitness , list_particules[j].partial_derivative ,PSO.index_in_epoch= \
@@ -93,19 +93,18 @@ class PSOimplemntation :
         PSO.c1 = PSO.w * 2
         PSO.c2 = 2 - PSO.c1
         """if i % 10 ==0 : """ 
-        """ PSO.w = PSO.w / 1000
-        PSO.c1 = PSO.c1 / 1000
-        PSO.c2 = PSO.c2  / 1000 """  
+        """ PSO.w = PSO.w / 10000
+        PSO.c1 = PSO.c1 / 10000
+        PSO.c2 = PSO.c2  / 10000 """   
         
-        """ print('iteration %d Gbest solution %.5f and weight %.5f c1 %.5f , c2 %.5f' 
-              % (i, gbest_fitness,PSO.w,PSO.c1,PSO.c2)) """
-                   
+        print('iteration %d Gbest solution %.5f and weight %.5f c1 %.5f , c2 %.5f' 
+              % (i, gbest_fitness.numpy(),PSO.w,PSO.c1,PSO.c2))                    
        
 
 def launch_pso():
    
-     psoimplemntation = PSOimplemntation(nb_iteration=10,
-                          swarm_size=2,cognitive=1.8,social=0.2,weight=0.9)
+     psoimplemntation = PSOimplemntation(nb_iteration=50,
+                          swarm_size=20,cognitive=1.8,social=0.2,weight=0.9)
      psoimplemntation.lunch()
 
 launch_pso()    

@@ -51,6 +51,7 @@ class PSOEngine :
         for i in range(0,self.num_particles):
             
             list_weights_all_layers = lunch()
+            #print(list_weights_all_layers[0][0,0,0,0,:])
             
             p=Particle(list_weights_all_layers)                      
             
