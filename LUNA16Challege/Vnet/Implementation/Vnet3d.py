@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, 'E:/LUNA 16/PSOGD V1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
                          weight_xavier_init, bias_variable, save_images)
@@ -9,11 +9,6 @@ import numpy as np
 import cv2
 import os
 import random
-
-
-
-
-
 
 def conv_bn_relu_drop(x, W, B,pre_activations,activations):
     conv = conv3d(x, W) + B    
@@ -51,9 +46,22 @@ def conv_sigmod(x, W,B ,pre_activations,activations):
 # Serve data by batches
 def _next_batch(train_images, train_labels, batch_size, index_in_epoch):
     start = index_in_epoch
-    index_in_epoch += batch_size  
+    index_in_epoch += batch_size
+
+    num_examples = train_images.shape[0]
+    # when all trainig data have been already used, it is reorder randomly
+    if index_in_epoch > num_examples:
+        # shuffle the data
+        perm = np.arange(num_examples)
+        np.random.shuffle(perm)
+        train_images = train_images[perm]
+        train_labels = train_labels[perm]
+        # start next epoch
+        start = 0
+        index_in_epoch = batch_size
+        assert batch_size <= num_examples
     end = index_in_epoch
-    return train_images[start:end], train_labels[start:end]
+    return train_images[start:end], train_labels[start:end], index_in_epoch
 
 def cost(Y_gt, Y_pred):
         Z, H, W, C = list(Y_gt.shape)[1:]
@@ -311,11 +319,12 @@ class Vnet3dModule(object):
         self.channels = channels        
 
     def train(self, train_images, train_lanbels,position,
-               batch_size=1):        
+               batch_size,index_in_epoch):        
         
-         index_in_epoch=random.randrange(0, train_images.shape[0]-batch_size)
+         
+         #random.randrange(0, train_images.shape[0]-batch_size)
          # get new batch
-         batch_xs_path, batch_ys_path = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
+         batch_xs_path, batch_ys_path, index_in_epoch  = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
          batch_xs = np.empty((len(batch_xs_path), self.image_depth, self.image_height, self.image_width,
                                           self.channels))
          batch_ys = np.empty((len(batch_ys_path), self.image_depth, self.image_height, self.image_width,
@@ -339,14 +348,17 @@ class Vnet3dModule(object):
          batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
          batch_ys=np.float32(batch_ys)     
          
-         with tf.GradientTape() as tape:
-            Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
-            train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
-            position_list = list(position)
-            derivative_position = \
-                  tape.gradient(train_loss,position_list)
+         with tf.device('/cpu:0'):
+
+              with tf.GradientTape() as tape:
+                     Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
+                     train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
+                     position_list = list(position)
+                     derivative_position = \
+                            tape.gradient(train_loss,position_list)
+                     #print(('derivates ' , derivative_position[-2]))
                           
-         return train_loss , derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+         return train_loss , derivative_position , index_in_epoch #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
                  
 
 def weight_xavier_init_particule():
@@ -357,6 +369,7 @@ def weight_xavier_init_particule():
     kernal=(3, 3, 3, 1, 16)
     W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] * kernal[2] * kernal[3],
                                n_outputs=kernal[-1], activefunction='relu', variable_name=scope + 'conv_W')
+    
     
     B = bias_variable([kernal[-1]], variable_name=scope + 'conv_B')
     list.append(W)
