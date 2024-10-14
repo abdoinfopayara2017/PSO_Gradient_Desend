@@ -2,8 +2,8 @@ from __future__ import print_function, division
 import SimpleITK as sitk
 from glob import glob
 
-luna_path = "G:\Data\LIDC\LUNA16\LUNA16\src/"
-output_path = "G:\Data\LIDC\LUNA16\LUNA16\mask/"
+luna_path = "E:/LUNA 16/"
+output_path = "E:/LUNA 16/mask/"
 
 
 def getTrunctedThresholdValue():
@@ -16,15 +16,17 @@ def getTrunctedThresholdValue():
     lower = -1000
     num_points = 0.0
     num_inliers = 0.0
-    for subsetindex in range(0, 10, 1):
-        luna_subset_path = luna_path + "subset" + str(subsetindex) + "/"
-        file_list = glob(luna_subset_path + "*.mhd")
+    for subsetindex in range(0, 10, 1):        
+        luna_subset_mask_path = output_path + "subset" + str(subsetindex) + "/"
+        file_list = glob(luna_subset_mask_path + "*.mhd")
         for fcount in range(len(file_list)):
-            src = sitk.ReadImage(file_list[fcount], sitk.sitkInt16)
+            luna_subset_path = luna_path + "subset" + str(subsetindex) + "/"
+            sub_img_file = file_list[fcount][len(luna_subset_mask_path):-17]
+            src = sitk.ReadImage(luna_subset_path + sub_img_file + ".mhd", sitk.sitkInt16)
             srcimg = sitk.GetArrayFromImage(src)
-            luna_subset_mask_path = output_path + "subset" + str(subsetindex) + "/"
-            sub_img_file = file_list[fcount][len(luna_subset_path):-4]
-            seg = sitk.ReadImage(luna_subset_mask_path + sub_img_file + "_segmentation.mhd", sitk.sitkUInt8)
+            #luna_subset_mask_path = output_path + "subset" + str(subsetindex) + "/"
+            #sub_img_file = file_list[fcount][len(luna_subset_path):-4]
+            seg = sitk.ReadImage(file_list[fcount], sitk.sitkUInt8)
             segimg = sitk.GetArrayFromImage(seg)
             seg_maskimage = segimg.copy()
             seg_maskimage[segimg > 1] = 255
@@ -63,4 +65,4 @@ def getitkImageSpacing():
 
 
 #getTrunctedThresholdValue()
-# getitkImageSpacing()
+#getitkImageSpacing()

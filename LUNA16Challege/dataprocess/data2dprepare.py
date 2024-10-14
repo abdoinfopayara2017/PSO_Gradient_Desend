@@ -95,24 +95,25 @@ def load_itkfilewithtrucation(filename, upper=200, lower=-200):
 
 def processOriginaltraindata():
     expandslice = 13
-    trainImage = "G:\\Data\\LIDC\\LUNA16\\process\\image\\"
-    trainMask = "G:\Data\LIDC\LUNA16\process\mask\\"
+    trainImage = "E:/LUNA 16/process/image/"
+    trainMask = "E:/LUNA 16/process/mask/"
     """
     load itk image,change z Spacing value to 1,and save image ,liver mask ,tumor mask
     :return:None
     """
     seriesindex = 0
     for subsetindex in range(10):
-        luna_path = "G:\Data\LIDC\LUNA16\LUNA16\src/"
+        luna_path = "E:/LUNA 16/"
         luna_subset_path = luna_path + "subset" + str(subsetindex) + "/"
-        output_path = "G:\Data\LIDC\LUNA16\LUNA16\mask/"
+        output_path = "E:/LUNA 16/mask/"
         luna_subset_mask_path = output_path + "subset" + str(subsetindex) + "/"
-        file_list = glob(luna_subset_path + "*.mhd")
+        file_list = glob(luna_subset_mask_path + "*.mhd")
         for fcount in range(len(file_list)):
+            sub_img_file = file_list[fcount][len(luna_subset_mask_path):-17]
             # 1 load itk image and truncate value with upper and lower
-            src = load_itkfilewithtrucation(file_list[fcount], 600, -1000)
-            sub_img_file = file_list[fcount][len(luna_subset_path):-4]
-            seg = sitk.ReadImage(luna_subset_mask_path + sub_img_file + "_segmentation.mhd", sitk.sitkUInt8)
+            src = load_itkfilewithtrucation(luna_subset_path + sub_img_file + ".mhd", 600, -1000)
+            #sub_img_file = file_list[fcount][len(luna_subset_path):-4]
+            seg = sitk.ReadImage(file_list[fcount], sitk.sitkUInt8)
             segzspace = seg.GetSpacing()[-1]
             # 2 change z spacing >1.0 to 1.0
             if segzspace > 1.0:
