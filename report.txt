@@ -1,0 +1,31 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 0 issues that require attention
+--------------------------------------------------------------------------------
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'LUNA16Challege\\Vnet\\Implementation\\PSOEngine.py'
+ outputting to 'LUNA16Challege\\Vnet\\Implementation\\PSOEngine_v2.py'
+--------------------------------------------------------------------------------
+
+ERROR: Failed to parse.
+Traceback (most recent call last):
+  File "C:\Users\User\anaconda3\envs\feliouneTF2\lib\site-packages\tensorflow\tools\compatibility\ast_edits.py", line 932, in update_string_pasta
+    t = pasta.parse(text)
+  File "C:\Users\User\anaconda3\envs\feliouneTF2\lib\site-packages\pasta\__init__.py", line 23, in parse
+    t = ast_utils.parse(src)
+  File "C:\Users\User\anaconda3\envs\feliouneTF2\lib\site-packages\pasta\base\ast_utils.py", line 56, in parse
+    tree = ast.parse(sanitize_source(src))
+  File "C:\Users\User\anaconda3\envs\feliouneTF2\lib\ast.py", line 47, in parse
+    return compile(source, filename, mode, flags,
+  File "<unknown>", line 142
+    ω33 = tf.zeros(shape = particule.position[index].shape,dtype=tf.dtypes.float32)
+       ^
+SyntaxError: invalid character in identifier
+
+--------------------------------------------------------------------------------
+

@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
-from layer import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
+from LUNA16Challege.Vnet.layer import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
                          weight_xavier_init, bias_variable, save_images)
 import tensorflow as tf
 import numpy as np
@@ -68,16 +68,16 @@ def cost(Y_gt, Y_pred):
         smooth = 1e-5
         pred_flat = tf.reshape(Y_pred, [-1, H * W * C * Z])
         true_flat = tf.reshape(Y_gt, [-1, H * W * C * Z])
-        intersection = 2 * tf.reduce_sum(input_tensor=pred_flat * true_flat, axis=1) + smooth
-        denominator = tf.reduce_sum(input_tensor=pred_flat, axis=1) + tf.reduce_sum(input_tensor=true_flat, axis=1) + smooth
-        loss = -tf.reduce_mean(input_tensor=intersection / denominator)
+        intersection = 2 * tf.reduce_sum(pred_flat * true_flat, axis=1) + smooth
+        denominator = tf.reduce_sum(pred_flat, axis=1) + tf.reduce_sum(true_flat, axis=1) + smooth
+        loss = -tf.reduce_mean(intersection / denominator)
         
         return loss
 
 def derivative_cost(dice,Y_gt,Y_pred):   
    
     smooth = 1e-5   
-    dY_pred = (tf.subtract(tf.multiply(2.0,Y_gt), dice))/(tf.reduce_sum(input_tensor=Y_pred) + tf.reduce_sum(input_tensor=Y_gt) + smooth)
+    dY_pred = (tf.subtract(tf.multiply(2.0,Y_gt), dice))/(tf.reduce_sum(Y_pred) + tf.reduce_sum(Y_gt) + smooth)
     return dY_pred
 
 def derivative_sigmoid(X) :
@@ -325,7 +325,6 @@ class Vnet3dModule(object):
          #random.randrange(0, train_images.shape[0]-batch_size)
          # get new batch
          batch_xs_path, batch_ys_path, index_in_epoch  = _next_batch(train_images, train_lanbels, batch_size,index_in_epoch)
-         
          batch_xs = np.empty((len(batch_xs_path), self.image_depth, self.image_height, self.image_width,
                                           self.channels))
          batch_ys = np.empty((len(batch_ys_path), self.image_depth, self.image_height, self.image_width,
@@ -352,8 +351,8 @@ class Vnet3dModule(object):
          with tf.device('/gpu:0'):
 
               with tf.GradientTape() as tape:
-                     Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
-                     train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
+                     Y_pred =_create_conv_net(tf.convert_to_tensor(batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position)
+                     train_loss=cost(tf.convert_to_tensor(batch_ys),Y_pred)
                      position_list = list(position)
                      derivative_position = \
                             tape.gradient(train_loss,position_list)

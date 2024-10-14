@@ -1,8 +1,10 @@
 import numpy as np
+
+
 from PSOEngine import PSOEngine
 import tensorflow as tf
 
-tf.enable_eager_execution()
+#tf.enable_eager_execution()
 
 class PSOimplemntation :
 
@@ -32,7 +34,7 @@ class PSOimplemntation :
       list_particules[p].fitness , list_particules[p].partial_derivative ,PSO.index_in_epoch = \
         PSO.evaluate_fitness(list_particules[p].position)
         
-      with tf.device('/cpu:0'):
+      with tf.device('/gpu:0'):
         for w in range(0,len(list_particules[p].partial_derivative)) :         
           list_particules[p].partial_derivative[w]=tf.where(
               tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
@@ -49,10 +51,11 @@ class PSOimplemntation :
            
      # PSO boucle
      # for each iteration do
-     with tf.device('/cpu:0'):
-      for i in range(0,self.nb_iteration):
+     with tf.device('/gpu:0'):
+      for epoch in range(0,10) : 
+        for i in range(0,self.nb_iteration) :
         # for each particle p do
-        for j in range(0,len(list_particules)):
+          for j in range(0,len(list_particules)):
             #update the velocity and the position
             # Initialize the random vectors for updates
             r1=np.empty(len(list_particules[0].position),dtype=object) 
@@ -61,9 +64,11 @@ class PSOimplemntation :
                 r1[r]=np.random.rand(*list_particules[0].position[r].get_shape())
                 r2[r]=np.random.rand(*list_particules[0].position[r].get_shape())           
             
-            #print('fitness for  particule %d is %.5f' % (j,list_particules[j].fitness_best_pos.numpy()))
+            #print('fitness for  particule %d is %.5f and best is %.5f' % (j,list_particules[j].fitness.numpy(),\
+                                                                          #list_particules[j].fitness_best_pos.numpy()))
             list_particules[j] = PSO.update_velocity(list_particules[j],gbest,r1,r2)            
-            #print('velocity  for particule %d is  ', j,list_particules[j].velocity[0][0,0,0,0,:])
+            #if j==0 :
+              #print('vilocity for particule %d is  ' , j,list_particules[j].velocity[0][0,0,0,0,:8].numpy())
             list_particules[j] = PSO.update_position(list_particules[j])
             #print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             
@@ -71,6 +76,8 @@ class PSOimplemntation :
             list_particules[j].fitness , list_particules[j].partial_derivative ,PSO.index_in_epoch= \
                 PSO.evaluate_fitness(list_particules[j].position)
            
+            #print('partial derivate for j',j,list_particules[j].partial_derivative[0][0,0,0,0,:8])
+            
             for w in range(0,len(list_particules[j].partial_derivative)) : 
               list_particules[j].partial_derivative[w]=tf.where(
                 tf.greater_equal(list_particules[j].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
@@ -84,27 +91,28 @@ class PSOimplemntation :
              list_particules[j].fitness_best_pos =  list_particules[j].fitness
              for w in range(0,len(list_particules[p].position)):
               list_particules[j].best_pos[w].assign (list_particules[j].position[w])
-             
-            
-        #update Gbest 
-        gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
-       
-        PSO.w = 1 - abs(gbest_fitness)
-        PSO.c1 = PSO.w * 2
-        PSO.c2 = 2 - PSO.c1
-        """if i % 10 ==0 : """ 
-        """ PSO.w = PSO.w / 10000
-        PSO.c1 = PSO.c1 / 10000
-        PSO.c2 = PSO.c2  / 10000 """   
+                     
+          #update Gbest 
+          gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
         
-        print('iteration %d Gbest solution %.5f and weight %.5f c1 %.5f , c2 %.5f' 
-              % (i, gbest_fitness.numpy(),PSO.w,PSO.c1,PSO.c2))                    
+          PSO.w = 1 - abs(gbest_fitness)
+          PSO.c1 = PSO.w * 2
+          PSO.c2 = 2 - PSO.c1
+          """if i % 10 ==0 : """ 
+          #PSO.w = PSO.w / 100000
+          PSO.c1 = PSO.c1 / 1000000
+          PSO.c2 = PSO.c2  / 100000    
+          if i % 10 == 0 :
+            print('iteration %d in epoch %d the  Gbest solution is %5f ' \
+                  %(i, epoch,gbest_fitness.numpy(),))   
+      #print(' Gbest solution %.5f ' \
+        #      % (gbest_fitness.numpy()))                    
        
 
 def launch_pso():
    
-     psoimplemntation = PSOimplemntation(nb_iteration=50,
-                          swarm_size=20,cognitive=1.8,social=0.2,weight=0.9)
+     psoimplemntation = PSOimplemntation(nb_iteration=2451,
+                          swarm_size=20,cognitive=0.000018,social=0.000002,weight=0.9)
      psoimplemntation.lunch()
 
 launch_pso()    

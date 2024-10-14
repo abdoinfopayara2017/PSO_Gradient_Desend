@@ -9,7 +9,7 @@ print(device_lib.list_local_devices())
 import cv2
 from Vnet.model_vnet3d import Vnet3dModule
 import numpy as np
-from Vnet.layer import save_images
+from LUNA16Challege.Vnet.layer_v1 import save_images
 
 
 def predict():
