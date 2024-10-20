@@ -232,6 +232,7 @@ class Vnet3dModule(object):
         if not os.path.exists(logs_path + "model\\"):
             os.makedirs(logs_path + "model\\")
         model_path = logs_path + "model\\" + model_path
+        
         train_op = tf.train.AdamOptimizer(self.lr).minimize(self.cost)
 
         init = tf.global_variables_initializer()
