@@ -69,7 +69,7 @@ def make_patch(image, mask, patch_block_size, numberxy, numberz):
     return image_subsample, mask_subsample
 
 
-def gen_image_mask(srcimg, seg_image, index, shape, numberxy, numberz, trainImage, trainMask):
+def gen_image_mask(srcimg, seg_image, index, shape, numberxy, numberz, trainImage, trainMask ,path):
     # step 2 get subimages (numberxy*numberxy*numberz,64, 128, 128)
     sub_srcimages,sub_liverimages = make_patch(srcimg,seg_image, patch_block_size=shape, numberxy=numberxy, numberz=numberz)
     # step 3 only save subimages (numberxy*numberxy*numberz,64, 128, 128)
@@ -78,48 +78,56 @@ def gen_image_mask(srcimg, seg_image, index, shape, numberxy, numberz, trainImag
         sub_masks = sub_liverimages.astype(np.float32)
         sub_masks = np.clip(sub_masks, 0, 255).astype('uint8')
         if np.max(sub_masks[j, :, :, :]) == 255:
-            filepath = trainImage + "\\" + str(index) + "_" + str(j) + "\\"
-            filepath2 = trainMask + "\\" + str(index) + "_" + str(j) + "\\"
+            filepath = trainImage + "\\" + path + "\\" + str(index) + "_" + str(j) + "\\"
+            filepath2 = trainMask + "\\" + path + "\\" + str(index) + "_" + str(j) + "\\"
             if not os.path.exists(filepath) and not os.path.exists(filepath2):
                 os.makedirs(filepath)
-                os.makedirs(filepath2)
+                os.makedirs(filepath2) 
             for z in range(imagez):
                 image = sub_srcimages[j, z, :, :]
                 image = image.astype(np.float32)
                 image = np.clip(image, 0, 255).astype('uint8')
                 cv2.imwrite(filepath + str(z) + ".bmp", image)
-                cv2.imwrite(filepath2 + str(z) + ".bmp", sub_masks[j, z, :, :])
+                cv2.imwrite(filepath2 + str(z) + ".bmp", sub_masks[j, z, :, :]) 
 
 
 def prepare3dtraindata(srcpath, maskpath, trainImage, trainMask, number, height, width, shape=(16, 256, 256),
                        numberxy=3, numberz=20):
+    index = 0
     for i in range(number):
-        index = 0
-        listsrc = []
-        listmask = []
-        for _ in os.listdir(srcpath + str(i)):
-            image = cv2.imread(srcpath + str(i) + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
-            label = cv2.imread(maskpath + str(i) + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
-            listsrc.append(image)
-            listmask.append(label)
-            index += 1
-
-        imagearray = np.array(listsrc)
-        imagearray = np.reshape(imagearray, (index, height, width))
-        maskarray = np.array(listmask)
-        maskarray = np.reshape(maskarray, (index, height, width))
-        gen_image_mask(imagearray, maskarray, i, shape=shape, numberxy=numberxy, numberz=numberz, trainImage=trainImage,
-                       trainMask=trainMask)
+        path = srcpath + "subset" + str(i)
+        path_mask = maskpath + "subset" + str(i)
+        size_subset = len(os.listdir(path))               
+        for index in range(index , index + size_subset):
+            listsrc = []
+            listmask = [] 
+            index_image = 0
+            path_subset = path + "/" + str(index)
+            path_mask_subset = path_mask + "/" + str(index)
+            size_subset_index = len(os.listdir(path_subset))            
+            for index_image in range (size_subset_index) :
+                image = cv2.imread(path_subset + "/" + str(index_image) + ".bmp", cv2.IMREAD_GRAYSCALE)
+                label = cv2.imread(path_mask_subset + "/" + str(index_image) + ".bmp", cv2.IMREAD_GRAYSCALE)
+                listsrc.append(image)
+                listmask.append(label)           
+            imagearray = np.array(listsrc)
+            imagearray = np.reshape(imagearray, (index_image + 1, height, width))
+            maskarray = np.array(listmask)
+            maskarray = np.reshape(maskarray, (index_image + 1, height, width))
+            gen_image_mask(imagearray, maskarray, index, shape=shape, numberxy=numberxy, numberz=numberz, trainImage=trainImage,
+                       trainMask=trainMask,path = "subset" + str(i)) 
+        index += 1
+        
 
 
 def preparenoduledetectiontraindata():
     height = 512
     width = 512
-    number = 601
-    srcpath = "G:\Data\LIDC\LUNA16\process\image\\"
-    maskpath = "G:\Data\LIDC\LUNA16\process\mask\\"
-    trainImage = "G:\Data\LIDC\LUNA16\segmentation\Image"
-    trainMask = "G:\Data\LIDC\LUNA16\segmentation\Mask"
+    number = 10
+    srcpath = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/process/image/"
+    maskpath = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/process/mask/"
+    trainImage = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image"
+    trainMask = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Mask"
     prepare3dtraindata(srcpath, maskpath, trainImage, trainMask, number, height, width, (16, 96, 96), 10, 10)
 
 

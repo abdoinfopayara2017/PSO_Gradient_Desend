@@ -53,4 +53,13 @@ def save_file2csv(file_dir, file_name):
         out.writelines(file_dir + "/" + sub_dirs[index] + "\n")
 
 
-#save_file2csv("G:\Data\LIST\\3dliver_25625616\Image", "train_X.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset0", "Segmentation3dImagesubset0.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset1", "Segmentation3dImagesubset1.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset2", "Segmentation3dImagesubset2.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset3", "Segmentation3dImagesubset3.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset4", "Segmentation3dImagesubset4.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset5", "Segmentation3dImagesubset5.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset6", "Segmentation3dImagesubset6.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset7", "Segmentation3dImagesubset7.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset8", "Segmentation3dImagesubset8.csv")
+save_file2csv("D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/segmentation/Image/subset9", "Segmentation3dImagesubset9.csv")

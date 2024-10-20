@@ -2,7 +2,19 @@ from __future__ import print_function, division
 import SimpleITK as sitk
 from glob import glob
 
-luna_path = "E:/LUNA 16/"
+import logging
+
+logging.basicConfig(
+     filename="D:/M2ISII2021/app.log",    
+     filemode="a",
+     format="{asctime} - {levelname} - {message}",
+     style="{",
+     datefmt="%Y-%m-%d %H:%M")
+
+
+
+
+luna_path = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/mask/"
 output_path = "E:/LUNA 16/mask/"
 
 
@@ -61,8 +73,10 @@ def getitkImageSpacing():
             srcSize = src.GetSize()
             srcSpace = src.GetSpacing()
             print(srcSize)
+            logging.warning(srcSize)
             print(srcSpace)
+            
 
 
 #getTrunctedThresholdValue()
-#getitkImageSpacing()
+getitkImageSpacing()

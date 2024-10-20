@@ -95,17 +95,17 @@ def load_itkfilewithtrucation(filename, upper=200, lower=-200):
 
 def processOriginaltraindata():
     expandslice = 13
-    trainImage = "E:/LUNA 16/process/image/"
-    trainMask = "E:/LUNA 16/process/mask/"
+    trainImage = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/process/image/"
+    trainMask = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/process/mask/"
     """
     load itk image,change z Spacing value to 1,and save image ,liver mask ,tumor mask
     :return:None
     """
     seriesindex = 0
     for subsetindex in range(10):
-        luna_path = "E:/LUNA 16/"
+        luna_path = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/"
         luna_subset_path = luna_path + "subset" + str(subsetindex) + "/"
-        output_path = "E:/LUNA 16/mask/"
+        output_path = "D:/M2ISII2021/doctorat/LIDC-IDRI/LUNA 16/mask/"
         luna_subset_mask_path = output_path + "subset" + str(subsetindex) + "/"
         file_list = glob(luna_subset_mask_path + "*.mhd")
         for fcount in range(len(file_list)):
@@ -125,8 +125,8 @@ def processOriginaltraindata():
             segimg = sitk.GetArrayFromImage(seg)
             srcimg = sitk.GetArrayFromImage(src)
 
-            trainimagefile = trainImage + str(seriesindex)
-            trainMaskfile = trainMask + str(seriesindex)
+            trainimagefile = trainImage + "subset" + str(subsetindex) + "/" + str(seriesindex)
+            trainMaskfile = trainMask + "subset" +  str(subsetindex) + "/" + str(seriesindex)
             if not os.path.exists(trainimagefile):
                 os.makedirs(trainimagefile)
             if not os.path.exists(trainMaskfile):
