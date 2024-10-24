@@ -3,6 +3,14 @@ import numpy as np
 
 from PSOEngine import PSOEngine
 import tensorflow as tf
+import logging
+
+logging.basicConfig(
+     filename="app.log",    
+     filemode="a",
+     format="{asctime} - {levelname} - {message}",
+     style="{",
+     datefmt="%Y-%m-%d %H:%M")
 
 #tf.enable_eager_execution()
 
@@ -52,7 +60,7 @@ class PSOimplemntation :
      # PSO boucle
      # for each iteration do
      with tf.device('/gpu:0'):
-      for epoch in range(0,10) : 
+      for epoch in range(0,20) : 
         for i in range(0,self.nb_iteration) :
         # for each particle p do
           for j in range(0,len(list_particules)):
@@ -102,9 +110,12 @@ class PSOimplemntation :
           #PSO.w = PSO.w / 100000
           PSO.c1 = PSO.c1 / 1000000
           PSO.c2 = PSO.c2  / 100000    
-          if i % 10 == 0 :
+          if i % 100 == 0 :
             print('iteration %d in epoch %d the  Gbest solution is %5f ' \
-                  %(i, epoch,gbest_fitness.numpy(),))   
+                  %(i, epoch,gbest_fitness.numpy(),))
+            logging.warning('iteration %d in epoch %d the  Gbest solution is %5f ' \
+                  %(i, epoch,gbest_fitness.numpy(),))
+               
       #print(' Gbest solution %.5f ' \
         #      % (gbest_fitness.numpy()))                    
        
