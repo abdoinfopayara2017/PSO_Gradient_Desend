@@ -3,8 +3,9 @@ import numpy as np
 
 from PSOEngine import PSOEngine
 import tensorflow as tf
+import pickle
+import os
 
-#tf.enable_eager_execution()
 
 class PSOimplemntation :
 
@@ -15,10 +16,19 @@ class PSOimplemntation :
         self.cognitive=cognitive
         self.social=social
         self.weight=weight
-
+    
+    def saveVariables(self, path ,variables): #where 'variables' is a list of variables
+        with open(path + "model.txt", 'wb+') as file:
+           pickle.dump(variables, file)
+    
+    def retrieveVariables(self, filename):
+        variables = []
+        with open(str(filename), 'rb') as file:
+            variables = pickle.load(file)
+        return variables
      
     def lunch(self):     
-     
+
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
      list_particules=[]    
      list_particules=PSO.init_particles(list_particules)
@@ -47,8 +57,11 @@ class PSOimplemntation :
           
      # Find best particle in set
      gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest,gbest_fitness)
-    
-           
+     
+     last_fitness = gbest_fitness.numpy()
+     path = "log\\segmeation\\" + "model\\" 
+     if not os.path.exists(path) :
+        os.makedirs(path)       
      # PSO boucle
      # for each iteration do
      with tf.device('/gpu:0'):
@@ -94,7 +107,7 @@ class PSOimplemntation :
                      
           #update Gbest 
           gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
-        
+          
           PSO.w = 1 - abs(gbest_fitness)
           PSO.c1 = PSO.w * 2
           PSO.c2 = 2 - PSO.c1
@@ -104,7 +117,11 @@ class PSOimplemntation :
           PSO.c2 = PSO.c2  / 100000    
           if i % 10 == 0 :
             print('iteration %d in epoch %d the  Gbest solution is %5f ' \
-                  %(i, epoch,gbest_fitness.numpy(),))   
+                  %(i, epoch,gbest_fitness.numpy(),))
+          if(gbest_fitness.numpy() < last_fitness) : 
+             last_fitness = gbest_fitness.numpy()
+             self.saveVariables(path = path ,variables = list_particules)
+                
       #print(' Gbest solution %.5f ' \
         #      % (gbest_fitness.numpy()))                    
        
