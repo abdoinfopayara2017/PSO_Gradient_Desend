@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
                          weight_xavier_init, bias_variable, save_images)

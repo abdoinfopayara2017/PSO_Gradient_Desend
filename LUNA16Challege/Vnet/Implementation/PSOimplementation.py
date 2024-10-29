@@ -1,6 +1,8 @@
 import numpy as np
 from PSOEngine import PSOEngine
 import tensorflow as tf
+import os
+import pickle
 
 tf.enable_eager_execution()
 
@@ -14,13 +16,24 @@ class PSOimplemntation :
         self.social=social
         self.weight=weight
 
-     
+    def saveVariables(self, path , variables): #where 'variables' is a list of variables
+        with open(path +"list_particules.txt", 'wb+') as file:
+           pickle.dump(variables, file) 
+    
+    def retrieveVariables(self, filename):
+        variables = []
+        with open(str(filename), 'rb') as file:
+            variables = pickle.load(file)
+        return variables
+    
     def lunch(self):     
      
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
      list_particules=[]    
+     
      list_particules=PSO.init_particles(list_particules)
      gbest=np.empty(len(list_particules[0].position),dtype=object)
+     
      for w in range(0,len(gbest)):            
         gbest[w]=tf.Variable(initial_value=tf.constant(0.0,shape=list_particules[0].position[w].get_shape()),
                     shape=list_particules[0].position[w].get_shape(),dtype=tf.float32)      
@@ -98,15 +111,24 @@ class PSOimplemntation :
         PSO.c2 = PSO.c2  / 10000 """   
         
         print('iteration %d Gbest solution %.5f and weight %.5f c1 %.5f , c2 %.5f' 
-              % (i, gbest_fitness.numpy(),PSO.w,PSO.c1,PSO.c2))                    
+              % (i, gbest_fitness.numpy(),PSO.w,PSO.c1,PSO.c2))
+        
+        path = "log\\segmeation\\" + "model\\" + str(i) + "\\"
+        if not os.path.exists(path):
+            os.makedirs(path)
+        
+        self.saveVariables(path=path,variables=list_particules)                           
        
 
 def launch_pso():
    
-     psoimplemntation = PSOimplemntation(nb_iteration=50,
-                          swarm_size=20,cognitive=1.8,social=0.2,weight=0.9)
-     psoimplemntation.lunch()
-
+     psoimplemntation = PSOimplemntation(nb_iteration=2,
+                          swarm_size=2,cognitive=1.8,social=0.2,weight=0.9)
+     path = "log\\segmeation\\" + "model\\" + str(0) + "\\"
+     list = psoimplemntation.retrieveVariables(filename = path +"list_particules.txt")
+     for i in range (len(list)) :
+      print(list[i].position[0][0,0,0,0,:])
+      
 launch_pso()    
 
 
