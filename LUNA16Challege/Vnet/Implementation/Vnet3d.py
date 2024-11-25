@@ -312,15 +312,15 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     return output_map #, pre_activations , activations
 
 class Vnet3dModule(object):
-    def __init__(self, image_height, image_width, image_depth, channels=1):
+    def __init__(self, image_height, image_width, image_depth,channels=1):
         self.image_width = image_width
         self.image_height = image_height
         self.image_depth = image_depth
-        self.channels = channels        
+        self.channels = channels
+                
 
     def train(self, train_images, train_lanbels,position,
-               batch_size,index_in_epoch):        
-        
+               batch_size,index_in_epoch):       
          
          #random.randrange(0, train_images.shape[0]-batch_size)
          # get new batch
@@ -357,7 +357,7 @@ class Vnet3dModule(object):
                      position_list = list(position)
                      derivative_position = \
                             tape.gradient(train_loss,position_list)
-                     #print(('derivates ' , derivative_position[-2]))
+                     
                           
          return train_loss , derivative_position , index_in_epoch #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
                  
