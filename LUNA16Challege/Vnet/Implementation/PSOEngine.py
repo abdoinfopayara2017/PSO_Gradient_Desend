@@ -15,6 +15,8 @@ from layer import (full_conv3d , valid_conv3d)
 
 class PSOEngine :
     
+    
+
     def __init__(self,num_particles,c1,c2,w,index_in_epoch):
         
         self.num_particles=num_particles        
@@ -22,6 +24,7 @@ class PSOEngine :
         self.c2=c2
         self.w=w
         self.index_in_epoch = index_in_epoch
+        
 
     def evaluate_fitness(self,position):
         path_mask = Path(__file__).parent / "..\..\dataprocess\data\Segmentation3dMask.csv"
