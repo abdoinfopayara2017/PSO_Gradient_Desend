@@ -42,7 +42,7 @@ class PSOEngine :
                 np.random.shuffle(perm)
                 imagedata = imagedata[perm]
                 maskdata = maskdata[perm]
-                Vnet3d = vnet3d.Vnet3dModule(96, 96, 16, "Vnet3d.pd", "log\\segmeation\\",channels=1)
+                Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
                 return Vnet3d.train(imagedata, maskdata,position,6,self.index_in_epoch)
 
     
