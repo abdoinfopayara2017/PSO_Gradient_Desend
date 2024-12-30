@@ -5,6 +5,11 @@ from PSOEngine import PSOEngine
 import tensorflow as tf
 import pickle
 import os
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+file = logging.FileHandler('myLog.log')
 
 
 class PSOimplemntation :
@@ -125,15 +130,14 @@ class PSOimplemntation :
           #PSO.w = PSO.w / 100000
           PSO.c1 = PSO.c1 / 1000000
           PSO.c2 = PSO.c2  / 100000    
-          if i % 100 == 0 :
-            print('iteration %d in epoch %d the  Gbest solution is %5f ' \
-                  %(i, epoch,gbest_fitness.numpy(),))
+          
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()
              self.saveVariables(path = path ,variables = list_particules)
+             logger.info('iteration %d in epoch %d the  Gbest solution is %5f ' \
+                  %(i, epoch,gbest_fitness.numpy(),))
                 
-      #print(' Gbest solution %.5f ' \
-        #      % (gbest_fitness.numpy()))                    
+                         
        
 
 def launch_pso(retrive):
