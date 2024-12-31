@@ -107,6 +107,7 @@ venv.bak/
 
 # save wights
 log/
+log_v1/
 
 # Spyder project settings
 .spyderproject

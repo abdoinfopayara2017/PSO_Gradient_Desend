@@ -10,9 +10,9 @@ import cv2
 import os
 import random
 
-def conv_bn_relu_drop(x, W, B,pre_activations,activations,phase,image_z=None, height=None, width=None):
+def conv_bn_relu_drop(x, W, B,pre_activations,activations,phase,image_z=None, height=None, width=None,scope=None):
     conv = conv3d(x, W) + B
-    conv = normalizationlayer(conv, is_train=phase, height=height, width=width, image_z=image_z, norm_type='group')    
+    conv = normalizationlayer(conv, is_train=phase, height=height, width=width, image_z=image_z, norm_type='group',scope=scope)    
     pre_activations.append(conv)    
     conv = tf.nn.relu(conv)
     activations.append(conv)
@@ -20,10 +20,10 @@ def conv_bn_relu_drop(x, W, B,pre_activations,activations,phase,image_z=None, he
 
 
 
-def down_sampling(x, W, B ,pre_activations,activations,phase,image_z=None, height=None, width=None):
+def down_sampling(x, W, B ,pre_activations,activations,phase,image_z=None, height=None, width=None,scope=None):
     
     conv = conv3d(x, W, 2) + B
-    conv = normalizationlayer(conv, is_train=phase, height=height, width=width, image_z=image_z, norm_type='group')   
+    conv = normalizationlayer(conv, is_train=phase, height=height, width=width, image_z=image_z, norm_type='group',scope=scope)   
     pre_activations.append(conv)    
     conv = tf.nn.relu(conv)    
     activations.append(conv)
@@ -96,61 +96,61 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(inputX)
     
     layer0 = conv_bn_relu_drop(x=inputX,W=position[0],B=position[1],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer0')
     
     layer1 = conv_bn_relu_drop(x=layer0, W=position[2],B=position[3],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer1')
     
     layer1 = resnet_Add(x1=layer0, x2=layer1)
     activations.append(layer1)
     
     # down sampling1
     down1 = down_sampling(x=layer1,W=position[4],B=position[5],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='down1')
             
     # layer2->convolution
     layer2 = conv_bn_relu_drop(x=down1, W=position[6],B=position[7],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer2_1')
     
     layer2 = conv_bn_relu_drop(x=layer2, W=position[8],B=position[9],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer2_2')
     
     layer2 = resnet_Add(x1=down1, x2=layer2)
     activations.append(layer2)
     # down sampling2
     down2 = down_sampling(x=layer2, W=position[10],B=position[11],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase, scope='down2')
     # layer3->convolution
     layer3 = conv_bn_relu_drop(x=down2, W=position[12],B=position[13],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer3_1')
     layer3 = conv_bn_relu_drop(x=layer3, W=position[14],B=position[15],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer3_2')
     layer3 = conv_bn_relu_drop(x=layer3, W=position[16],B=position[17],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer3_3')
     layer3 = resnet_Add(x1=down2, x2=layer3)
     activations.append(layer3)
     # down sampling3
     down3 = down_sampling(x=layer3, W=position[18],B=position[19],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='down3')
     # layer4->convolution
     layer4 = conv_bn_relu_drop(x=down3, W=position[20],B=position[21],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer4_1')
     layer4 = conv_bn_relu_drop(x=layer4, W=position[22],B=position[23],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer4_2')
     layer4 = conv_bn_relu_drop(x=layer4, W=position[24],B=position[25],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='layer4_3')
     layer4 = resnet_Add(x1=down3, x2=layer4)
     activations.append(layer4)
     # down sampling4
     down4 = down_sampling(x=layer4, W=position[26],B=position[27],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase,scope='down4')
     # layer5->convolution
     layer5 = conv_bn_relu_drop(x=down4, W=position[28],B=position[29],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase, scope='layer5_1')
     layer5 = conv_bn_relu_drop(x=layer5, W=position[30],B=position[31],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase, scope='layer5_2')
     layer5 = conv_bn_relu_drop(x=layer5, W=position[32],B=position[33],pre_activations=pre_activations,
-                               activations=activations,phase=phase)
+                               activations=activations,phase=phase, scope='layer5_3')
     layer5 = resnet_Add(x1=down4, x2=layer5)
     activations.append(layer5)
     # layer9->deconvolution
@@ -161,13 +161,13 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer6)
     _, Z, H, W, _ = layer4.get_shape().as_list()    
     layer6 = conv_bn_relu_drop(x=layer6, W=position[36],B=position[37],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer6_1')
     
     layer6 = conv_bn_relu_drop(x=layer6, W=position[38],B=position[39],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer6_2')
     
     layer6 = conv_bn_relu_drop(x=layer6, W=position[40],B=position[41],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer6_3')
     layer6 = resnet_Add(x1=deconv1, x2=layer6)
     activations.append(layer6)
     # layer9->deconvolution
@@ -179,13 +179,13 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     _, Z, H, W, _ = layer3.get_shape().as_list()
    
     layer7 = conv_bn_relu_drop(x=layer7, W=position[44],B=position[45],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer7_1')
    
     layer7 = conv_bn_relu_drop(x=layer7, W=position[46],B=position[47],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer7_2')
    
     layer7 = conv_bn_relu_drop(x=layer7, W=position[48],B=position[49],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)    
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer7_3')    
     layer7 = resnet_Add(x1=deconv2, x2=layer7)
     activations.append(layer7)
     # layer9->deconvolution
@@ -197,11 +197,11 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     _, Z, H, W, _ = layer2.get_shape().as_list()
 
     layer8 = conv_bn_relu_drop(x=layer8, W=position[52],B=position[53],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer8_1')
     layer8 = conv_bn_relu_drop(x=layer8, W=position[54],B=position[55],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer8_2')
     layer8 = conv_bn_relu_drop(x=layer8, W=position[56],B=position[57],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer8_3')
     layer8 = resnet_Add(x1=deconv3, x2=layer8)
     activations.append(layer8)
     # layer9->deconvolution
@@ -212,11 +212,11 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer9)
     _, Z, H, W, _ = layer1.get_shape().as_list()
     layer9 = conv_bn_relu_drop(x=layer9, W=position[60],B=position[61],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer9_1')
     layer9 = conv_bn_relu_drop(x=layer9, W=position[62],B=position[63],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer9_2')
     layer9 = conv_bn_relu_drop(x=layer9, W=position[64],B=position[65],pre_activations=pre_activations,
-                               activations=activations,phase=phase,image_z=Z, height=H, width=W)
+                               activations=activations,phase=phase,image_z=Z, height=H, width=W,scope='layer9_3')
     layer9 = resnet_Add(x1=deconv4, x2=layer9)
     activations.append(layer9)
     # layer14->output
@@ -231,7 +231,7 @@ class Vnet3dModule(object):
         self.image_height = image_height
         self.image_depth = image_depth
         self.channels = channels
-        self.phase = tf.placeholder(tf.bool)
+        self.phase = tf.Variable(True,dtype=tf.bool)
                 
 
     def train(self, train_images, train_lanbels,position,
