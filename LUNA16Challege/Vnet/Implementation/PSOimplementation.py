@@ -6,8 +6,8 @@ import tensorflow as tf
 import pickle
 import os
 
-
-
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 class PSOimplemntation :
 
@@ -142,7 +142,7 @@ class PSOimplemntation :
 def launch_pso(retrive):
    
      psoimplemntation = PSOimplemntation(nb_iteration=2717,
-                          swarm_size=10,cognitive=0.000018,social=0.000002,weight=0.9)
+                          swarm_size=20,cognitive=0.000018,social=0.000002,weight=0.9)
      psoimplemntation.lunch(retrive)
 
 launch_pso(False)    

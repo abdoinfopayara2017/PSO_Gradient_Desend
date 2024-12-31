@@ -1,3 +1,3 @@
-iteration 0 in epoch 0 the  Gbest solution is -0.173361 
-iteration 2 in epoch 0 the  Gbest solution is -0.204705 
-iteration 67 in epoch 0 the  Gbest solution is -0.234301 
+iteration 0 in epoch 0 the  Gbest solution is -0.168981 
+iteration 1 in epoch 0 the  Gbest solution is -0.172593 
+iteration 3 in epoch 0 the  Gbest solution is -0.179245 
