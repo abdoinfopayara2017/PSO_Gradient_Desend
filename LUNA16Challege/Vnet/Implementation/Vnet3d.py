@@ -274,6 +274,7 @@ class Vnet3dModule(object):
                      position_list = list(position)
                      derivative_position = \
                             tape.gradient(train_loss,position_list)
+                     #print('DRIVATE  for particule %d is  ' , derivative_position[0][0,0,0,0,:8].numpy())
                      
                           
          return train_loss , derivative_position , index_in_epoch #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation

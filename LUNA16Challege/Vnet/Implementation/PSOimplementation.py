@@ -73,6 +73,9 @@ class PSOimplemntation :
      gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest,gbest_fitness)
      
      last_fitness = gbest_fitness.numpy()
+
+     #print('position after for particule is %.5f ',  (list_particules[0].position[0][0,0,0,0,:8].numpy()))
+            
             
      # PSO boucle
      # for each iteration do
@@ -125,8 +128,8 @@ class PSOimplemntation :
           PSO.c2 = 2 - PSO.c1
           """if i % 10 ==0 : """ 
           #PSO.w = PSO.w / 100000
-          PSO.c1 = PSO.c1 / 1000000
-          PSO.c2 = PSO.c2  / 100000    
+          PSO.c1 = PSO.c1 / 10000
+          PSO.c2 = PSO.c2  / 1000    
           
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()
@@ -141,11 +144,11 @@ class PSOimplemntation :
 
 def launch_pso(retrive):
    
-     psoimplemntation = PSOimplemntation(nb_iteration=2717,
-                          swarm_size=20,cognitive=0.000018,social=0.000002,weight=0.9)
+     psoimplemntation = PSOimplemntation(nb_iteration=5435,
+                          swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
      psoimplemntation.lunch(retrive)
 
-launch_pso(False)    
+launch_pso(True)    
 
 
            

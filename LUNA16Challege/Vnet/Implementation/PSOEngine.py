@@ -43,7 +43,7 @@ class PSOEngine :
                 imagedata = imagedata[perm]
                 maskdata = maskdata[perm]
                 Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
-                return Vnet3d.train(imagedata, maskdata,position,6,self.index_in_epoch)
+                return Vnet3d.train(imagedata, maskdata,position,3,self.index_in_epoch)
 
     
     def init_particles(self,list_particules):
@@ -82,6 +82,8 @@ class PSOEngine :
        difference1 = np.empty(len(particule.best_pos),dtype=object)
        for i in range (0,len(particule.best_pos)) :
         difference1[i] = tf.subtract (particule.best_pos[i] , particule.position[i])
+       #print('diff1 %.5f ',  (particule.position[0][0,0,0,0,:8].numpy()))
+      
         
        c1_timesr1 = np.empty(len(r1),dtype=object)
        for i in range (0,len(r1)) : 
@@ -95,6 +97,7 @@ class PSOEngine :
        difference2 = np.empty(len(particule.position),dtype=object)
        for i in range (0,len(particule.position)) : 
         difference2[i] = tf.subtract(gbest[i] , particule.position[i])
+       #print('diff2 %.5f ',  (particule.position[0][0,0,0,0,:8].numpy()))
        
         
        
