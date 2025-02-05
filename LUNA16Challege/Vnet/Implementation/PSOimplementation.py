@@ -31,7 +31,7 @@ class PSOimplemntation :
 
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
      list_particules=[]
-     path = "log\\segmeation\\" + "model\\" 
+     path = "log\\segmeation\\PSO_STD\\" + "model\\" 
      if not os.path.exists(path) :
         os.makedirs(path)
      
@@ -124,17 +124,15 @@ class PSOimplemntation :
           PSO.c2 = 2 - PSO.c1
           """if i % 10 ==0 : """ 
           #PSO.w = PSO.w / 100000
-          PSO.c1 = PSO.c1 / 1000000
-          PSO.c2 = PSO.c2  / 100000    
-          if i % 100 == 0 :
-            print('iteration %d in epoch %d the  Gbest solution is %5f ' \
-                  %(i, epoch,gbest_fitness.numpy(),))
+          PSO.c1 = PSO.c1 / 10000
+          PSO.c2 = PSO.c2  / 1000    
+          
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()
              self.saveVariables(path = path ,variables = list_particules)
-                
-      #print(' Gbest solution %.5f ' \
-        #      % (gbest_fitness.numpy()))                    
+             with open('myLog.txt', 'a') as f:
+               print('iteration %d in epoch %d the  Gbest solution is %5f ' \
+                         %(i, epoch,gbest_fitness.numpy(),), file=f)                    
        
 
 def launch_pso(retrive):
@@ -143,7 +141,7 @@ def launch_pso(retrive):
                           swarm_size=20,cognitive=0.000018,social=0.000002,weight=0.9)
      psoimplemntation.lunch(retrive)
 
-launch_pso(True)    
+launch_pso(False)    
 
 
            
