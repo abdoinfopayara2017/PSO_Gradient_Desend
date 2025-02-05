@@ -53,15 +53,16 @@ class PSOimplemntation :
      
         # initialisation des parametres 
         for p in range(0,len(list_particules)) :      
-          list_particules[p].fitness , list_particules[p].partial_derivative ,PSO.index_in_epoch = \
+          list_particules[p].fitness , PSO.index_in_epoch = \
            PSO.evaluate_fitness(list_particules[p].position)
         
+          """
           with tf.device('/gpu:0'):
             for w in range(0,len(list_particules[p].partial_derivative)) :         
               list_particules[p].partial_derivative[w]=tf.where(
               tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
               ,tf.ones_like(list_particules[p].partial_derivative[w]),- tf.ones_like(list_particules[p].partial_derivative[w]))
-                
+          """      
           # for each particle i do Pbesti = xi;
           list_particules[p].fitness_best_pos.assign( list_particules[p].fitness)     
           for w in range(0,len(list_particules[p].position)):
@@ -96,16 +97,16 @@ class PSOimplemntation :
             #print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             
             # move the particle and evaluate its fitness
-            list_particules[j].fitness , list_particules[j].partial_derivative ,PSO.index_in_epoch= \
+            list_particules[j].fitness , PSO.index_in_epoch= \
                 PSO.evaluate_fitness(list_particules[j].position)
            
             #print('partial derivate for j',j,list_particules[j].partial_derivative[0][0,0,0,0,:8])
-            
+            """
             for w in range(0,len(list_particules[j].partial_derivative)) : 
               list_particules[j].partial_derivative[w]=tf.where(
                 tf.greater_equal(list_particules[j].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
              ,tf.ones_like(list_particules[j].partial_derivative[w]),- tf.ones_like(list_particules[j].partial_derivative[w]))
-             
+            """ 
             #update Pbest
            
             bool = tf.less(list_particules[j].fitness,
