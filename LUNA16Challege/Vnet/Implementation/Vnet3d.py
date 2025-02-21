@@ -266,18 +266,18 @@ class Vnet3dModule(object):
          batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
          batch_ys=np.float32(batch_ys)     
          
-         with tf.device('/gpu:0'):
+         #with tf.device('/gpu:0'):
 
-              with tf.GradientTape() as tape:
-                     Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
-                     train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
-                     position_list = list(position)
-                     derivative_position = \
-                            tape.gradient(train_loss,position_list)
+              #with tf.GradientTape() as tape:
+         Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
+         train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
+                     #position_list = list(position)
+                     #derivative_position = \
+                            #tape.gradient(train_loss,position_list)
                      #print('DRIVATE  for particule %d is  ' , derivative_position[0][0,0,0,0,:8].numpy())
                      
                           
-         return train_loss , derivative_position , index_in_epoch #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+         return train_loss , index_in_epoch #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
                  
 
 def weight_xavier_init_particule():

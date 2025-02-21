@@ -111,7 +111,7 @@ class PSOEngine :
         
        for i in range (0,len(particule.velocity)) : 
          particule.velocity[i].assign(tf.add(tf.add(inertia_term[i] , cognitive_term[i]) , social_term[i]))
-         particule.velocity[i].assign(tf.abs(particule.velocity[i]))
+         #particule.velocity[i].assign(tf.abs(particule.velocity[i]))
        
        return particule 
         
@@ -195,8 +195,7 @@ class PSOEngine :
    
     def update_position(self,particule):
         for i in range(0,len(particule.position)) :
-         particule.position[i].assign (tf.subtract(particule.position[i], tf.math.multiply(
-            particule.velocity[i],particule.partial_derivative[i])))
+         particule.position[i].assign (tf.add(particule.position[i],particule.velocity[i]))
         return particule
 
     
