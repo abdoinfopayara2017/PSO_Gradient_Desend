@@ -43,7 +43,7 @@ class PSOEngine :
                 imagedata = imagedata[perm]
                 maskdata = maskdata[perm]
                 Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
-                return Vnet3d.train(imagedata, maskdata,position,3,self.index_in_epoch)
+                return Vnet3d.train(imagedata, maskdata,position,6,self.index_in_epoch)
 
     
     def init_particles(self,list_particules):
