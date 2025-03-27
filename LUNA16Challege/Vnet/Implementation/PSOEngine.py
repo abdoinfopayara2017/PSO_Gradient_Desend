@@ -8,7 +8,8 @@ from pathlib import Path
 
 import sys
 
-sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+#sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import (full_conv3d , valid_conv3d)
 
@@ -25,25 +26,31 @@ class PSOEngine :
         self.w=w
         self.index_in_epoch = index_in_epoch
         
+    def _next_batch(self,train_images,train_labels,batch_size,index_in_epoch) :
+     start = index_in_epoch
+     index_in_epoch += batch_size
 
-    def evaluate_fitness(self,position):
-        path_mask = Path(__file__).parent / "..\..\dataprocess\data\Segmentation3dMask.csv"
-        path_data = Path(__file__).parent / "..\..\dataprocess\data\Segmentation3dImage.csv"
-        with path_mask.open() as f_m:
-            with path_data.open() as f_d:
+     num_examples = train_images.shape[0]
+     # when all trainig data have been already used, it is reorder randomly
+     if index_in_epoch > num_examples:
+        # shuffle the data
+        perm = np.arange(num_examples)
+        np.random.shuffle(perm)
+        train_images = train_images[perm]
+        train_labels = train_labels[perm]
+        # start next epoch
+        start = 0
+        index_in_epoch = batch_size
+        assert batch_size <= num_examples
+     end = index_in_epoch
+     return train_images[start:end], train_labels[start:end], index_in_epoch
 
-                # Read  data set (Train data from CSV file)
-                csvmaskdata = pd.read_csv(f_m)
-                csvimagedata = pd.read_csv(f_d)
-                maskdata = csvmaskdata.iloc[:, :].values
-                imagedata = csvimagedata.iloc[:, :].values
-                # shuffle imagedata and maskdata together
-                perm = np.arange(len(csvimagedata))
-                np.random.shuffle(perm)
-                imagedata = imagedata[perm]
-                maskdata = maskdata[perm]
-                Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
-                return Vnet3d.train(imagedata, maskdata,position,3,self.index_in_epoch)
+    
+    def evaluate_fitness(self,position,magedata,maskdata,batch_size):
+        Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
+         
+        #print(self.index_in_epoch)
+        return Vnet3d.train(imagedata_batch, maskdata_batch,position)
 
     
     def init_particles(self,list_particules):
@@ -72,7 +79,13 @@ class PSOEngine :
         gbest[w].assign (particles[0].position[w])
        
        return gbest , gbest_fitness 
+    
+    def find_best(self,particles):
+       
+       particles = sorted(particles, key=lambda Particle: Particle.fitness.numpy())   # sort by fitness
+       return particles[0].fitness.numpy() 
 
+    
     def update_velocity(self,particule,gbest,r1,r2):
        inertia_term = np.empty(len(particule.velocity),dtype=object)
        

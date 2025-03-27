@@ -5,12 +5,13 @@ from __future__ import division
 import tensorflow as tf
 import numpy as np
 import cv2
+import os
 
 
 # Weight initialization (Xavier's init)
 
 def weight_xavier_init(shape, n_inputs, n_outputs, activefunction='sigomd', uniform=True, variable_name=None):
-    with tf.device('/gpu:0'):
+    with tf.device('/cpu:0'):
         with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
             if activefunction == 'sigomd':
                 if uniform:
@@ -44,7 +45,7 @@ def weight_xavier_init(shape, n_inputs, n_outputs, activefunction='sigomd', unif
 # Bias initialization
 
 def bias_variable(shape, variable_name=None):
-    with tf.device('/gpu:0'):
+    with tf.device('/cpu:0'):
         with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
             initial = tf.constant(0.1, shape=shape)
             return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
@@ -189,5 +190,5 @@ def save_images(images, size, path):
         j = idx // size[1]
         merge_img[j * h:j * h + h, i * w:i * w + w] = image
     result = merge_img * 255.
-    result = np.clip(result, 0, 255).astype('uint8')
+    result = np.clip(result, 0, 255).astype('uint8')    
     return cv2.imwrite(path, result)

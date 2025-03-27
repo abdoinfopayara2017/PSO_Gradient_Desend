@@ -90,10 +90,10 @@ for subsetindex in range(10):
                 v_center[0], v_center[1], v_center[2] = v_center[2], v_center[1], v_center[0]
                 make_mask(mask_itk, v_center, v_diam,spacing)
 
-          mask_itk = np.uint8(mask_itk * 255.)
-          mask_itk = np.clip(mask_itk, 0, 255).astype('uint8')
-          sitk_maskimg = sitk.GetImageFromArray(mask_itk)
-          sitk_maskimg.SetSpacing(spacing)
-          sitk_maskimg.SetOrigin(origin)
-          sub_img_file = img_file[len(luna_subset_path):-4]
-          sitk.WriteImage(sitk_maskimg, luna_subset_mask_path + sub_img_file + "_segmentation.mhd")
+            mask_itk = np.uint8(mask_itk * 255.)
+            mask_itk = np.clip(mask_itk, 0, 255).astype('uint8')
+            sitk_maskimg = sitk.GetImageFromArray(mask_itk)
+            sitk_maskimg.SetSpacing(spacing)
+            sitk_maskimg.SetOrigin(origin)
+            sub_img_file = img_file[len(luna_subset_path):-4]
+            sitk.WriteImage(sitk_maskimg, luna_subset_mask_path + sub_img_file + "_segmentation.mhd")
