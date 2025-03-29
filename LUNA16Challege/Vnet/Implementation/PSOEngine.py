@@ -29,7 +29,7 @@ class PSOEngine :
     def _next_batch(self,train_images,train_labels,batch_size,index_in_epoch) :
      start = index_in_epoch
      index_in_epoch += batch_size
-
+     
      num_examples = train_images.shape[0]
      # when all trainig data have been already used, it is reorder randomly
      if index_in_epoch > num_examples:

@@ -1,0 +1,5 @@
+iteration 0 the  Gbest solution is -0.537735 
+iteration 6 the  Gbest solution is -0.542692 
+iteration 10 the  Gbest solution is -0.581670 
+iteration 19 the  Gbest solution is -0.612796 
+iteration 20 the  Gbest solution is -0.641517 
