@@ -8,8 +8,8 @@ from pathlib import Path
 
 import sys
 
-#sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+#sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import (full_conv3d , valid_conv3d)
 
@@ -50,7 +50,7 @@ class PSOEngine :
         Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
          
         #print(self.index_in_epoch)
-        return Vnet3d.train(imagedata_batch, maskdata_batch,position)
+        return Vnet3d.train(magedata, magedata,position)
 
     
     def init_particles(self,list_particules):
