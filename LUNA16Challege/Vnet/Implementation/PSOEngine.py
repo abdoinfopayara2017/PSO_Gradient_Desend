@@ -29,7 +29,7 @@ class PSOEngine :
     def _next_batch(self,train_images,train_labels,batch_size,index_in_epoch) :
      start = index_in_epoch
      index_in_epoch += batch_size
-
+     
      num_examples = train_images.shape[0]
      # when all trainig data have been already used, it is reorder randomly
      if index_in_epoch > num_examples:
@@ -50,7 +50,7 @@ class PSOEngine :
         Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
          
         #print(self.index_in_epoch)
-        return Vnet3d.train(imagedata_batch, maskdata_batch,position)
+        return Vnet3d.train(magedata, magedata,position)
 
     
     def init_particles(self,list_particules):

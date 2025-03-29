@@ -1,0 +1,15 @@
+best of iteration 0 is -0.501799
+iteration 0 the  Gbest solution is -0.501799 
+best of iteration 1 is -0.445986
+best of iteration 2 is -0.536992
+iteration 2 the  Gbest solution is -0.536992 
+best of iteration 3 is -0.531661
+best of iteration 4 is -0.467966
+best of iteration 5 is -0.342808
+best of iteration 6 is -0.538970
+iteration 6 the  Gbest solution is -0.538970 
+best of iteration 7 is -0.441304
+best of iteration 8 is -0.536534
+best of iteration 9 is -0.533326
+best of iteration 10 is -0.527992
+best of iteration 11 is -0.515822

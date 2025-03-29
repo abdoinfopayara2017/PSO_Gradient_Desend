@@ -44,7 +44,7 @@ class PSOimplemntation :
 
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
      list_particules=[]
-     path = "log\\segmeation\\" + "model\\" 
+     path = "log\\segmentation\\" + "model\\" 
      if not os.path.exists(path) :
         os.makedirs(path)
      
@@ -136,7 +136,9 @@ class PSOimplemntation :
                      
           #update Gbest 
           gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
-          print('best of iteration %5f' %(PSO.find_best(list_particules)))
+          
+          with open('myLog.txt', 'a') as f:
+               print('best of iteration %d is %5f' %(i,PSO.find_best(list_particules)), file=f)
           PSO.w = 1 - abs(gbest_fitness)
           PSO.c1 = PSO.w * 2
           PSO.c2 = 2 - PSO.c1
