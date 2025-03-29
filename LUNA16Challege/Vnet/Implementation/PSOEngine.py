@@ -50,7 +50,7 @@ class PSOEngine :
         Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)
          
         #print(self.index_in_epoch)
-        return Vnet3d.train(magedata, magedata,position)
+        return Vnet3d.train(magedata, maskdata,position)
 
     
     def init_particles(self,list_particules):
