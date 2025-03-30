@@ -68,7 +68,7 @@ class PSOimplemntation :
         # initialisation des parametres 
         for p in range(0,len(list_particules)) :      
           list_particules[p].fitness , list_particules[p].partial_derivative = \
-           PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch,batch_size)
+           PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch)
         
           with tf.device('/gpu:0'):
             for w in range(0,len(list_particules[p].partial_derivative)) :         
@@ -96,6 +96,7 @@ class PSOimplemntation :
         for i in range(0,self.nb_iteration) :
           imagedata_batch , maskdata_batch , PSO.index_in_epoch = \
              PSO._next_batch( magedata , maskdata , batch_size , PSO.index_in_epoch )
+          
           # for each particle p do
           for j in range(0,len(list_particules)):
             #update the velocity and the position
@@ -116,7 +117,7 @@ class PSOimplemntation :
             
             # move the particle and evaluate its fitness
             list_particules[j].fitness , list_particules[j].partial_derivative = \
-                PSO.evaluate_fitness(list_particules[j].position,imagedata_batch , maskdata_batch,batch_size)
+                PSO.evaluate_fitness(list_particules[j].position,imagedata_batch , maskdata_batch)
            
             #print('partial derivate for j',j,list_particules[j].partial_derivative[0][0,0,0,0,:8])
             
@@ -149,7 +150,7 @@ class PSOimplemntation :
           
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()
-             self.saveVariables(path = path ,variables = list_particules)
+             #self.saveVariables(path = path ,variables = list_particules)
              with open('myLog.txt', 'a') as f:
                print('iteration %d the  Gbest solution is %5f ' \
                          %(i,gbest_fitness.numpy(),), file=f)
@@ -171,7 +172,7 @@ class PSOimplemntation :
                 np.random.shuffle(perm)
                 imagedata = imagedata[perm]
                 maskdata = maskdata[perm]
-        path = "log\\segmeation\\" + "model\\" 
+        path = "log\\segmentation\\" + "model\\" 
         list_particules=self.retrieveVariables(path+"model.txt")
         gbest=np.empty(len(list_particules[0].position),dtype=object)
         for w in range(0,len(gbest)):            
@@ -181,32 +182,33 @@ class PSOimplemntation :
         PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
         gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
         
-        for num in range(imagedata.shape[0]) :
-          src_path = imagedata[num][0]
-          mask_path = maskdata[num][0]
-          imges = []
-          masks = []
+        with tf.device('/gpu:0') :
+          for num in range(imagedata.shape[0]) :
+           src_path = imagedata[num][0]
+           mask_path = maskdata[num][0]
+           imges = []
+           masks = []
           
-          for z in range(16):
+           for z in range(16):
              img = cv2.imread(src_path + "/" + str(z) + ".bmp", cv2.IMREAD_GRAYSCALE)
              mask = cv2.imread(mask_path + "/" + str(z) + ".bmp", cv2.IMREAD_GRAYSCALE)
              imges.append(img)
              masks.append(mask)
              #print(src_path + "/" + str(z) + ".bmp"+ " -- " +mask_path + "/" + str(z) + ".bmp")
-          test_imges = np.array(imges)
-          test_imges = np.reshape(test_imges, (16, 96, 96))
+           test_imges = np.array(imges)
+           test_imges = np.reshape(test_imges, (16, 96, 96))
 
-          test_masks = np.array(masks)
-          test_masks = np.reshape(test_masks, (16, 96, 96))
-          Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)        
-          predict , train_loss = Vnet3d.prediction(test_imges,gbest,test_masks)
-          test_images = np.multiply(test_imges, 1.0 / 255.0)
-          test_masks = np.multiply(test_masks, 1.0 / 255.0)
-          DSC = train_loss.numpy() + DSC
-          if(num % 100 == 0) :
-            print ('avrage of DSC %5f on iteration %d' %(-DSC/(num + 1),num))
-          #with open('results.txt', 'a') as f:
-          #     print('DSC %5f' %(-DSC), file=f)         
+           test_masks = np.array(masks)
+           test_masks = np.reshape(test_masks, (16, 96, 96))
+           Vnet3d = vnet3d.Vnet3dModule(96, 96, 16,channels=1)        
+           predict , train_loss = Vnet3d.prediction(test_imges,gbest,test_masks)
+           test_images = np.multiply(test_imges, 1.0 / 255.0)
+           test_masks = np.multiply(test_masks, 1.0 / 255.0)
+           DSC = train_loss.numpy() #+ DSC
+           if(-DSC < 0.50) :
+            #print ('avrage of DSC %5f on iteration %d' %(-DSC/(num + 1),num))
+            with open('results.txt', 'a') as f:
+               print('for image %s DSC %5f' %(src_path,-DSC), file=f)         
           """path_test = path + "DSC %5f\\" %(-DSC)
           if not os.path.exists(path_test) :
              os.makedirs(path_test)
@@ -229,15 +231,15 @@ def launch_pso(retrive):
         csvmaskdata = pd.read_csv(f_m)
         csvimagedata = pd.read_csv(f_d)
         maskdata = csvmaskdata.iloc[:, :].values
-        imagedata = csvimagedata.iloc[:, :].values
+        imagedata = csvimagedata.iloc[:, :].values        
         # shuffle imagedata and maskdata together
-        perm = np.arange(len(csvimagedata))
+        perm = np.arange(len(csvimagedata))        
         np.random.shuffle(perm)
         imagedata = imagedata[perm]
         maskdata = maskdata[perm]
-     psoimplemntation = PSOimplemntation(nb_iteration=2717,
+     psoimplemntation = PSOimplemntation(nb_iteration=500,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
-     psoimplemntation.lunch(retrive,imagedata,maskdata,6)
+     psoimplemntation.lunch(retrive,imagedata,maskdata,3)
 launch_pso(False)      
 #predict_test()      
 

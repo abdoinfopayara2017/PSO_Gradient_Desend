@@ -1,15 +1,158 @@
-best of iteration 0 is -0.501799
-iteration 0 the  Gbest solution is -0.501799 
-best of iteration 1 is -0.445986
-best of iteration 2 is -0.536992
-iteration 2 the  Gbest solution is -0.536992 
-best of iteration 3 is -0.531661
-best of iteration 4 is -0.467966
-best of iteration 5 is -0.342808
-best of iteration 6 is -0.538970
-iteration 6 the  Gbest solution is -0.538970 
-best of iteration 7 is -0.441304
-best of iteration 8 is -0.536534
-best of iteration 9 is -0.533326
-best of iteration 10 is -0.527992
-best of iteration 11 is -0.515822
+best of iteration 0 is -0.114848
+iteration 0 the  Gbest solution is -0.114848 
+best of iteration 1 is -0.116875
+iteration 1 the  Gbest solution is -0.116875 
+best of iteration 2 is -0.120379
+iteration 2 the  Gbest solution is -0.120379 
+best of iteration 3 is -0.123490
+iteration 3 the  Gbest solution is -0.123490 
+best of iteration 4 is -0.126250
+iteration 4 the  Gbest solution is -0.126250 
+best of iteration 5 is -0.129746
+iteration 5 the  Gbest solution is -0.129746 
+best of iteration 6 is -0.134382
+iteration 6 the  Gbest solution is -0.134382 
+best of iteration 7 is -0.138580
+iteration 7 the  Gbest solution is -0.138580 
+best of iteration 8 is -0.142367
+iteration 8 the  Gbest solution is -0.142367 
+best of iteration 9 is -0.145726
+iteration 9 the  Gbest solution is -0.145726 
+best of iteration 10 is -0.148691
+iteration 10 the  Gbest solution is -0.148691 
+best of iteration 11 is -0.151286
+iteration 11 the  Gbest solution is -0.151286 
+best of iteration 12 is -0.154463
+iteration 12 the  Gbest solution is -0.154463 
+best of iteration 13 is -0.158893
+iteration 13 the  Gbest solution is -0.158893 
+best of iteration 14 is -0.162794
+iteration 14 the  Gbest solution is -0.162794 
+best of iteration 15 is -0.166188
+iteration 15 the  Gbest solution is -0.166188 
+best of iteration 16 is -0.170198
+iteration 16 the  Gbest solution is -0.170198 
+best of iteration 17 is -0.174026
+iteration 17 the  Gbest solution is -0.174026 
+best of iteration 18 is -0.177304
+iteration 18 the  Gbest solution is -0.177304 
+best of iteration 19 is -0.182542
+iteration 19 the  Gbest solution is -0.182542 
+best of iteration 20 is -0.187226
+iteration 20 the  Gbest solution is -0.187226 
+best of iteration 21 is -0.192003
+iteration 21 the  Gbest solution is -0.192003 
+best of iteration 22 is -0.196667
+iteration 22 the  Gbest solution is -0.196667 
+best of iteration 23 is -0.201506
+iteration 23 the  Gbest solution is -0.201506 
+best of iteration 24 is -0.206075
+iteration 24 the  Gbest solution is -0.206075 
+best of iteration 25 is -0.211104
+iteration 25 the  Gbest solution is -0.211104 
+best of iteration 26 is -0.215719
+iteration 26 the  Gbest solution is -0.215719 
+best of iteration 27 is -0.220806
+iteration 27 the  Gbest solution is -0.220806 
+best of iteration 28 is -0.225623
+iteration 28 the  Gbest solution is -0.225623 
+best of iteration 29 is -0.230721
+iteration 29 the  Gbest solution is -0.230721 
+best of iteration 30 is -0.237117
+iteration 30 the  Gbest solution is -0.237117 
+best of iteration 31 is -0.242744
+iteration 31 the  Gbest solution is -0.242744 
+best of iteration 32 is -0.248712
+iteration 32 the  Gbest solution is -0.248712 
+best of iteration 33 is -0.255971
+iteration 33 the  Gbest solution is -0.255971 
+best of iteration 34 is -0.261908
+iteration 34 the  Gbest solution is -0.261908 
+best of iteration 35 is -0.269306
+iteration 35 the  Gbest solution is -0.269306 
+best of iteration 36 is -0.277335
+iteration 36 the  Gbest solution is -0.277335 
+best of iteration 37 is -0.283788
+iteration 37 the  Gbest solution is -0.283788 
+best of iteration 38 is -0.291460
+iteration 38 the  Gbest solution is -0.291460 
+best of iteration 39 is -0.298552
+iteration 39 the  Gbest solution is -0.298552 
+best of iteration 40 is -0.307738
+iteration 40 the  Gbest solution is -0.307738 
+best of iteration 41 is -0.314827
+iteration 41 the  Gbest solution is -0.314827 
+best of iteration 42 is -0.321845
+iteration 42 the  Gbest solution is -0.321845 
+best of iteration 43 is -0.330726
+iteration 43 the  Gbest solution is -0.330726 
+best of iteration 44 is -0.339147
+iteration 44 the  Gbest solution is -0.339147 
+best of iteration 45 is -0.347607
+iteration 45 the  Gbest solution is -0.347607 
+best of iteration 46 is -0.356639
+iteration 46 the  Gbest solution is -0.356639 
+best of iteration 47 is -0.364526
+iteration 47 the  Gbest solution is -0.364526 
+best of iteration 48 is -0.374051
+iteration 48 the  Gbest solution is -0.374051 
+best of iteration 49 is -0.382966
+iteration 49 the  Gbest solution is -0.382966 
+best of iteration 50 is -0.392888
+iteration 50 the  Gbest solution is -0.392888 
+best of iteration 51 is -0.403067
+iteration 51 the  Gbest solution is -0.403067 
+best of iteration 52 is -0.410700
+iteration 52 the  Gbest solution is -0.410700 
+best of iteration 53 is -0.421343
+iteration 53 the  Gbest solution is -0.421343 
+best of iteration 54 is -0.430137
+iteration 54 the  Gbest solution is -0.430137 
+best of iteration 55 is -0.438269
+iteration 55 the  Gbest solution is -0.438269 
+best of iteration 56 is -0.449081
+iteration 56 the  Gbest solution is -0.449081 
+best of iteration 57 is -0.458620
+iteration 57 the  Gbest solution is -0.458620 
+best of iteration 58 is -0.468132
+iteration 58 the  Gbest solution is -0.468132 
+best of iteration 59 is -0.479840
+iteration 59 the  Gbest solution is -0.479840 
+best of iteration 60 is -0.489615
+iteration 60 the  Gbest solution is -0.489615 
+best of iteration 61 is -0.499067
+iteration 61 the  Gbest solution is -0.499067 
+best of iteration 62 is -0.510860
+iteration 62 the  Gbest solution is -0.510860 
+best of iteration 63 is -0.517773
+iteration 63 the  Gbest solution is -0.517773 
+best of iteration 64 is -0.529749
+iteration 64 the  Gbest solution is -0.529749 
+best of iteration 65 is -0.540431
+iteration 65 the  Gbest solution is -0.540431 
+best of iteration 66 is -0.551898
+iteration 66 the  Gbest solution is -0.551898 
+best of iteration 67 is -0.559181
+iteration 67 the  Gbest solution is -0.559181 
+best of iteration 68 is -0.570457
+iteration 68 the  Gbest solution is -0.570457 
+best of iteration 69 is -0.579611
+iteration 69 the  Gbest solution is -0.579611 
+best of iteration 70 is -0.590120
+iteration 70 the  Gbest solution is -0.590120 
+best of iteration 71 is -0.599218
+iteration 71 the  Gbest solution is -0.599218 
+best of iteration 72 is -0.609394
+iteration 72 the  Gbest solution is -0.609394 
+best of iteration 73 is -0.617279
+iteration 73 the  Gbest solution is -0.617279 
+best of iteration 74 is -0.627227
+iteration 74 the  Gbest solution is -0.627227 
+best of iteration 75 is -0.634583
+iteration 75 the  Gbest solution is -0.634583 
+best of iteration 76 is -0.645861
+iteration 76 the  Gbest solution is -0.645861 
+best of iteration 77 is -0.653515
+iteration 77 the  Gbest solution is -0.653515 
+best of iteration 78 is -0.663529
+iteration 78 the  Gbest solution is -0.663529 
