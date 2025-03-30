@@ -67,14 +67,14 @@ class PSOimplemntation :
              PSO._next_batch( magedata , maskdata , batch_size , PSO.index_in_epoch )
         # initialisation des parametres 
         for p in range(0,len(list_particules)) :      
-          list_particules[p].fitness , list_particules[p].partial_derivative = \
+          list_particules[p].fitness = \
            PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch,batch_size)
         
-          with tf.device('/cpu:0'):
-            for w in range(0,len(list_particules[p].partial_derivative)) :         
-              list_particules[p].partial_derivative[w]=tf.where(
-              tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
-              ,tf.ones_like(list_particules[p].partial_derivative[w]),- tf.ones_like(list_particules[p].partial_derivative[w]))
+          #with tf.device('/cpu:0'):
+           # for w in range(0,len(list_particules[p].partial_derivative)) :         
+            #  list_particules[p].partial_derivative[w]=tf.where(
+             # tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
+              #,tf.ones_like(list_particules[p].partial_derivative[w]),- tf.ones_like(list_particules[p].partial_derivative[w]))
                 
           # for each particle i do Pbesti = xi;
           list_particules[p].fitness_best_pos.assign( list_particules[p].fitness)     
@@ -115,37 +115,43 @@ class PSOimplemntation :
             #print('position after for particule %d is %.5f ' % (j,list_particules[j].position[0][0,0,0,0,5]))
             
             # move the particle and evaluate its fitness
-            list_particules[j].fitness , list_particules[j].partial_derivative = \
+            list_particules[j].fitness  = \
                 PSO.evaluate_fitness(list_particules[j].position,imagedata_batch , maskdata_batch,batch_size)
            
             #print('partial derivate for j',j,list_particules[j].partial_derivative[0][0,0,0,0,:8])
             
-            for w in range(0,len(list_particules[j].partial_derivative)) : 
-              list_particules[j].partial_derivative[w]=tf.where(
-                tf.greater_equal(list_particules[j].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
-             ,tf.ones_like(list_particules[j].partial_derivative[w]),- tf.ones_like(list_particules[j].partial_derivative[w]))
+            #for w in range(0,len(list_particules[j].partial_derivative)) : 
+             # list_particules[j].partial_derivative[w]=tf.where(
+              #  tf.greater_equal(list_particules[j].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
+             #,tf.ones_like(list_particules[j].partial_derivative[w]),- tf.ones_like(list_particules[j].partial_derivative[w]))
              
             #update Pbest
            
             bool = tf.less(list_particules[j].fitness,
                         list_particules[j].fitness_best_pos).numpy()
             if (bool):
-             list_particules[j].fitness_best_pos =  list_particules[j].fitness
-             for w in range(0,len(list_particules[j].position)):
-              list_particules[j].best_pos[w].assign (list_particules[j].position[w])
+              list_particules[j].fitness_best_pos =  list_particules[j].fitness
+              for w in range(0,len(list_particules[j].position)):
+                list_particules[j].best_pos[w].assign (list_particules[j].position[w])
+              list_particules[j].w = 1 - abs(list_particules[j].fitness_best_pos)
+              list_particules[j].c1 = list_particules[j].w * 2 
+              list_particules[j].c2 = 2 - list_particules[j].c1 
+              list_particules[j].c1 = list_particules[j].c1/ 10000
+              list_particules[j].c2 = list_particules[j].c2 / 1000
                      
           #update Gbest 
           gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
           
           with open('myLog.txt', 'a') as f:
                print('best of iteration %d is %5f' %(i,PSO.find_best(list_particules)), file=f)
-          PSO.w = 1 - abs(gbest_fitness)
+          
+          """PSO.w = 1 - abs(gbest_fitness)
           PSO.c1 = PSO.w * 2
           PSO.c2 = 2 - PSO.c1
-          """if i % 10 ==0 : """ 
+          if i % 10 ==0 : 
           #PSO.w = PSO.w / 100000
           PSO.c1 = PSO.c1 / 10000
-          PSO.c2 = PSO.c2  / 1000    
+          PSO.c2 = PSO.c2  / 1000"""    
           
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()

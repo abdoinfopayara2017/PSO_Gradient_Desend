@@ -275,13 +275,13 @@ class Vnet3dModule(object):
               with tf.GradientTape() as tape:
                      Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
                      train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
-                     position_list = list(position)
-                     derivative_position = \
-                            tape.gradient(train_loss,position_list)
+                     #position_list = list(position)
+                     #derivative_position = \
+                      #      tape.gradient(train_loss,position_list)
                      #print('DRIVATE  for particule %d is  ' , derivative_position[0][0,0,0,0,:8].numpy())
                      
                           
-         return train_loss , derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
+         return train_loss #, derivative_position #tf.multiply(dY_pred , derisigmoid) , pre_activation , activation
 
     def prediction(self, test_images,position,test_masks):
         test_images = np.reshape(test_images, (test_images.shape[0], test_images.shape[1], test_images.shape[2], 1))

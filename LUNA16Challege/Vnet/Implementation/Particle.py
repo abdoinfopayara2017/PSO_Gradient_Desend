@@ -15,6 +15,10 @@ class Particle:
         self.dot_derivate = tf.Variable([0.0,0.0,0.0,0.0,0.0],name="dot_derivate")
         self.pre_activations = []
         self.activations = []
+        self.w = 0.9
+        self.c1 = 0.00018
+        self.c2 = 0.002
+
         
         for i in range(0,len(data)):            
             self.position[i]=tf.Variable(initial_value=tf.constant(0.0,shape=data[i].get_shape()),

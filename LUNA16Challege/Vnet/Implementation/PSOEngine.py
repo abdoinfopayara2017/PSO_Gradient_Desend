@@ -90,7 +90,7 @@ class PSOEngine :
        inertia_term = np.empty(len(particule.velocity),dtype=object)
        
        for i in range (0,len(particule.velocity)) : 
-        inertia_term[i] = tf.multiply(particule.velocity[i] , self.w) 
+        inertia_term[i] = tf.multiply(particule.velocity[i] , particule.w) 
         
        difference1 = np.empty(len(particule.best_pos),dtype=object)
        for i in range (0,len(particule.best_pos)) :
@@ -100,7 +100,7 @@ class PSOEngine :
         
        c1_timesr1 = np.empty(len(r1),dtype=object)
        for i in range (0,len(r1)) : 
-        c1_timesr1[i] = tf.multiply(tf.convert_to_tensor(r1[i],dtype=tf.float32) , self.c1)        
+        c1_timesr1[i] = tf.multiply(tf.convert_to_tensor(r1[i],dtype=tf.float32) , particule.c1)        
         
        cognitive_term = np.empty(len(difference1),dtype=object)
        
@@ -116,7 +116,7 @@ class PSOEngine :
        
        c2_timesr2 = np.empty(len(r2),dtype=object) 
        for i in range (0,len(r2)) :
-        c2_timesr2[i] = tf.multiply(tf.convert_to_tensor(r2[i],dtype=tf.float32) , self.c2)
+        c2_timesr2[i] = tf.multiply(tf.convert_to_tensor(r2[i],dtype=tf.float32) , particule.c2)
         
        social_term = np.empty(len(difference2),dtype=object)
        for i in range (0,len(difference2)) : 
@@ -124,7 +124,7 @@ class PSOEngine :
         
        for i in range (0,len(particule.velocity)) : 
          particule.velocity[i].assign(tf.add(tf.add(inertia_term[i] , cognitive_term[i]) , social_term[i]))
-         particule.velocity[i].assign(tf.abs(particule.velocity[i]))
+         #particule.velocity[i].assign(tf.abs(particule.velocity[i]))
        
        return particule 
         
@@ -208,8 +208,7 @@ class PSOEngine :
    
     def update_position(self,particule):
         for i in range(0,len(particule.position)) :
-         particule.position[i].assign (tf.subtract(particule.position[i], tf.math.multiply(
-            particule.velocity[i],particule.partial_derivative[i])))
+         particule.position[i].assign (tf.add(particule.position[i], particule.velocity[i]))
         return particule
 
     
