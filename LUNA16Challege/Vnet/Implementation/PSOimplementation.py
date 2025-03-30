@@ -237,7 +237,7 @@ def launch_pso(retrive):
         np.random.shuffle(perm)
         imagedata = imagedata[perm]
         maskdata = maskdata[perm]
-     psoimplemntation = PSOimplemntation(nb_iteration=500,
+     psoimplemntation = PSOimplemntation(nb_iteration=5435,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
      psoimplemntation.lunch(retrive,imagedata,maskdata,3)
 launch_pso(False)      
