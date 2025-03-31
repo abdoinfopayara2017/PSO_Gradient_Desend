@@ -183,7 +183,8 @@ class PSOimplemntation :
         gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
         
         with tf.device('/gpu:0') :
-          for num in range(imagedata.shape[0]) :
+          for num in range (20) :
+          #for num in range (20"""imagedata.shape[0]""") :
            src_path = imagedata[num][0]
            mask_path = maskdata[num][0]
            imges = []
@@ -205,17 +206,17 @@ class PSOimplemntation :
            test_images = np.multiply(test_imges, 1.0 / 255.0)
            test_masks = np.multiply(test_masks, 1.0 / 255.0)
            DSC = train_loss.numpy() #+ DSC
-           if(-DSC < 0.50) :
+           #if(-DSC < 0.50) :
             #print ('avrage of DSC %5f on iteration %d' %(-DSC/(num + 1),num))
-            with open('results.txt', 'a') as f:
-               print('for image %s DSC %5f' %(src_path,-DSC), file=f)         
-          """path_test = path + "DSC %5f\\" %(-DSC)
-          if not os.path.exists(path_test) :
+            #with open('results.txt', 'a') as f:
+             #  print('for image %s DSC %5f' %(src_path,-DSC), file=f)         
+           path_test = path + "DSC %5f\\" %(-DSC)
+           if not os.path.exists(path_test) :
              os.makedirs(path_test)
-          save_images(test_images, [4, 4],path_test + "test_%d_src.bmp" %(num))        
-          save_images(test_masks, [4, 4], path + "DSC %5f" %(-DSC) + "\\" + "test_%d_mask.bmp" %(num))
-          save_images(predict, [4, 4], path + "DSC %5f" %(-DSC) + "\\" + "test_%d_predict.bmp" %(num))
-          """
+           save_images(test_images, [4, 4],path_test + "test_%d_src.bmp" %(num))        
+           save_images(test_masks, [4, 4], path + "DSC %5f" %(-DSC) + "\\" + "test_%d_mask.bmp" %(num))
+           save_images(predict, [4, 4], path + "DSC %5f" %(-DSC) + "\\" + "test_%d_predict.bmp" %(num))
+          
    
 def predict_test():
        psoimplemntation = PSOimplemntation(nb_iteration=5435,
@@ -240,8 +241,8 @@ def launch_pso(retrive):
      psoimplemntation = PSOimplemntation(nb_iteration=5435,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
      psoimplemntation.lunch(retrive,imagedata,maskdata,3)
-launch_pso(False)      
-#predict_test()      
+#launch_pso(False)      
+predict_test()      
 
 
            

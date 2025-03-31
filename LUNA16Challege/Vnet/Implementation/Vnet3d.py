@@ -253,7 +253,7 @@ class Vnet3dModule(object):
 
          for num in range(len(batch_xs_path)):
           index = 0
-          for _ in os.listdir(batch_xs_path[num]):
+          for _ in os.listdir(batch_xs_path[num][0]):
                image = cv2.imread(batch_xs_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
                label = cv2.imread(batch_ys_path[num][0] + "/" + str(index) + ".bmp", cv2.IMREAD_GRAYSCALE)
                batch_xs[num, index, :, :, :] = np.reshape(image, (self.image_height, self.image_width,
