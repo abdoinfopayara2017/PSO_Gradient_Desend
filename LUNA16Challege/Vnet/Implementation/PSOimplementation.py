@@ -11,8 +11,8 @@ from pathlib import Path
 import pandas as pd
 import sys
 
-#sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+#sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
 
 from layer import save_images
 
@@ -70,7 +70,7 @@ class PSOimplemntation :
           list_particules[p].fitness = \
            PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch,batch_size)
         
-          #with tf.device('/cpu:0'):
+          #with tf.device('/gpu:0'):
            # for w in range(0,len(list_particules[p].partial_derivative)) :         
             #  list_particules[p].partial_derivative[w]=tf.where(
              # tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
@@ -91,7 +91,7 @@ class PSOimplemntation :
             
      # PSO boucle
      # for each iteration do
-     with tf.device('/cpu:0'):
+     with tf.device('/gpu:0'):
       #for epoch in range(0,20) : 
         for i in range(0,self.nb_iteration) :
           imagedata_batch , maskdata_batch , PSO.index_in_epoch = \
@@ -241,9 +241,9 @@ def launch_pso(retrive):
         np.random.shuffle(perm)
         imagedata = imagedata[perm]
         maskdata = maskdata[perm]
-     psoimplemntation = PSOimplemntation(nb_iteration=2717,
+     psoimplemntation = PSOimplemntation(nb_iteration=5434,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
-     psoimplemntation.lunch(retrive,imagedata,maskdata,6)
+     psoimplemntation.lunch(retrive,imagedata,maskdata,3)
 launch_pso(False)      
 #predict_test()      
 
