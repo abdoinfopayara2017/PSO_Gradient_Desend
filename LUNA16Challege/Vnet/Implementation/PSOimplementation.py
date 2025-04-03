@@ -244,7 +244,7 @@ def launch_pso(retrive):
      psoimplemntation = PSOimplemntation(nb_iteration=5434,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
      psoimplemntation.lunch(retrive,imagedata,maskdata,3)
-launch_pso(False)      
+launch_pso(True)      
 #predict_test()      
 
 
