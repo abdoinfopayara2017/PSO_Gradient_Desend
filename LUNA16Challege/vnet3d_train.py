@@ -16,8 +16,8 @@ def train():
     Preprocessing for dataset
     '''
     # Read  data set (Train data from CSV file)
-    csvmaskdata = pd.read_csv('dataprocess\\data\Segmentation3dMask.csv')
-    csvimagedata = pd.read_csv('dataprocess\\data\Segmentation3dImage.csv')
+    csvmaskdata = pd.read_csv('E:\LUNA 16\PSOGD v1\PSO_Gradient_Desend\LUNA16Challege\dataprocess\data\Segmentation3dMask.csv')
+    csvimagedata = pd.read_csv('E:\LUNA 16\PSOGD v1\PSO_Gradient_Desend\LUNA16Challege\dataprocess\data\Segmentation3dImage.csv')
     maskdata = csvmaskdata.iloc[:, :].values
     imagedata = csvimagedata.iloc[:, :].values
     # shuffle imagedata and maskdata together

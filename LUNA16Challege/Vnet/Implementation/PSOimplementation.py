@@ -70,7 +70,7 @@ class PSOimplemntation :
           list_particules[p].fitness , list_particules[p].partial_derivative = \
            PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch)
         
-          with tf.device('/gpu:0'):
+          with tf.device('/cpu:0'):
             for w in range(0,len(list_particules[p].partial_derivative)) :         
               list_particules[p].partial_derivative[w]=tf.where(
               tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
@@ -91,7 +91,7 @@ class PSOimplemntation :
             
      # PSO boucle
      # for each iteration do
-     with tf.device('/gpu:0'):
+     with tf.device('/cpu:0'):
       #for epoch in range(0,20) : 
         for i in range(0,self.nb_iteration) :
           imagedata_batch , maskdata_batch , PSO.index_in_epoch = \
@@ -182,7 +182,7 @@ class PSOimplemntation :
         PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0)
         gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
         
-        with tf.device('/gpu:0') :
+        with tf.device('/cpu:0') :
           #for num in range (20) :
           for num in range (imagedata.shape[0]) :
            src_path = imagedata[num][0]

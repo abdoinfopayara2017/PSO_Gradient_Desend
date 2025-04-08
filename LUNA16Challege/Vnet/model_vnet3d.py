@@ -1,9 +1,12 @@
 '''
 
 '''
-from LUNA16Challege.Vnet.layer_v1 import (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
+
+from Vnet.layer import  (conv3d, deconv3d, normalizationlayer, crop_and_concat, resnet_Add,
                         weight_xavier_init, bias_variable, save_images)
-import tensorflow as tf
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import numpy as np
 import cv2
 import os
@@ -280,29 +283,30 @@ class Vnet3dModule(object):
                                                                  self.lr: learning_rate,
                                                                  self.phase: 1,
                                                                  self.drop: dropout_conv})
-                print('epochs %d training_loss ,Training_accuracy => %.5f,%.5f ' % (i, train_loss, train_accuracy))
-
-                pred = sess.run(self.Y_pred, feed_dict={self.X: batch_xs,
+                
+                with open('results_Vnet.txt', 'a') as f:
+                    print('epochs %d training_loss ,Training_accuracy => %.5f,%.5f ' % (i, train_loss, train_accuracy),file = f)
+                """pred = sess.run(self.Y_pred, feed_dict={self.X: batch_xs,
                                                         self.Y_gt: batch_ys,
                                                         self.phase: 1,
-                                                        self.drop: 1})
+                                                        self.drop: 1})"""
 
-                gt_src = np.reshape(batch_xs[0], (self.image_depth, self.image_height, self.image_width))
-                gt_src = gt_src.astype(np.float32)
-                save_images(gt_src, [4, 4], path=logs_path + 'src_%d_epoch.png' % (i))
+                #gt_src = np.reshape(batch_xs[0], (self.image_depth, self.image_height, self.image_width))
+                #gt_src = gt_src.astype(np.float32)
+                #save_images(gt_src, [4, 4], path=logs_path + 'src_%d_epoch.png' % (i))
 
-                gt = np.reshape(batch_ys[0], (self.image_depth, self.image_height, self.image_width))
-                gt = gt.astype(np.float32)
-                save_images(gt, [4, 4], path=logs_path + 'gt_%d_epoch.png' % (i))
+                #gt = np.reshape(batch_ys[0], (self.image_depth, self.image_height, self.image_width))
+                #gt = gt.astype(np.float32)
+                #save_images(gt, [4, 4], path=logs_path + 'gt_%d_epoch.png' % (i))
 
-                result = np.reshape(pred[0], (self.image_depth, self.image_height, self.image_width))
-                result = result.astype(np.float32)
-                save_images(result, [4, 4], path=logs_path + 'predict_%d_epoch.png' % (i))
+                #result = np.reshape(pred[0], (self.image_depth, self.image_height, self.image_width))
+                #result = result.astype(np.float32)
+                #save_images(result, [4, 4], path=logs_path + 'predict_%d_epoch.png' % (i))
 
-                save_path = saver.save(sess, model_path, global_step=i)
-                print("Model saved in file:", save_path)
-                if i % (DISPLAY_STEP * 10) == 0 and i:
-                    DISPLAY_STEP *= 10
+                #save_path = saver.save(sess, model_path, global_step=i)
+                #print("Model saved in file:", save_path)
+                #if i % (DISPLAY_STEP * 10) == 0 and i:
+                #    DISPLAY_STEP *= 10
 
                     # train on batch
             _, summary = sess.run([train_op, merged_summary_op], feed_dict={self.X: batch_xs,
