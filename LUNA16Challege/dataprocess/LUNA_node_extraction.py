@@ -70,26 +70,28 @@ def get_node_classify():
     # Getting list of image files and output nuddle 0 and 1
     for subsetindex in range(10):
         classify_size = 48
-        luna_path = "G:\Data\LIDC\LUNA16\LUNA16\src/"
+        luna_path = "D:\M2ISII2021\doctorat\LIDC-IDRI\LUNA 16\subsets/"
         luna_subset_path = luna_path + "subset" + str(subsetindex) + "/"
-        output_path = "G:\Data\LIDC\LUNA16\classsification/"
+        output_path = "E:\LUNA 16\classification/" + "subset" + str(subsetindex) + "/"
         file_list = glob(luna_subset_path + "*.mhd")
         
         file_list_path=[]
         for i in range(len(file_list)):
             file_list_path.append(file_list[i][0:-4])
+            
         
 
         # The locations of the nodes
-        luna_csv_path = "G:\Data\LIDC\LUNA16"
-        df_node = pd.read_csv(luna_csv_path + "/CSVFILES/" + "candidates.csv")
+        luna_csv_path = "D:\M2ISII2021\doctorat\LIDC-IDRI\LUNA 16/"
+        df_node = pd.read_csv(luna_csv_path +  "candidates_V2.csv",delimiter=';')
         df_node["file"] = df_node["seriesuid"].map(lambda file_name: get_filename(file_list_path, file_name))
         df_node = df_node.dropna()
         # Looping over the image files
-        for fcount, img_file in enumerate(tqdm(file_list)):
+        for fcount, img_file in enumerate(tqdm(file_list_path)):
             # get all nodules associate with file
             mini_df = df_node[df_node["file"] == img_file]
             # some files may not have a nodule--skipping those
+           
             if mini_df.shape[0] > 0:
                 img_file=img_file+".mhd"
                 # load the data once

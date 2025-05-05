@@ -1,4 +1,4 @@
-from dataaugmation.Augmentation.images_masks_3dtransform import ImageDataGenerator3D
+from Augmentation.images_masks_3dtransform import ImageDataGenerator3D
 import pandas as pd
 import numpy as np
 
@@ -55,11 +55,11 @@ class DataAug3D(object):
             if i > number - 1:
                 break
 
-    def DataAugmentation(self, filepathX, number=100, aug_path=None):
-        csvXdata = pd.read_csv(filepathX)
-        dataX = csvXdata.iloc[:, :].values
+    def DataAugmentation(self, file_list, number=100, aug_path=None):
+        #csvXdata = pd.read_csv(filepathX)
+        #dataX = csvXdata.iloc[:, :].values
         self.aug_path = aug_path
-        for index in range(dataX.shape[0]):
+        for index in range(len(file_list)):
             # For images
-            images_path = dataX[index][0]
+            images_path = file_list[index]
             self.__ImageMaskTranform(images_path, index, number)
