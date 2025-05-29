@@ -1,4 +1,4 @@
-from Vnet.Implementation.Particle import Particle
+
 from Resnet3d import lunch
 import Resnet3d as Resnet3d
 import pandas as pd
@@ -8,9 +8,9 @@ from pathlib import Path
 import sys
 
 #sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-#sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+from Implementation.Particle import Particle
 
-from layer import (full_conv3d , valid_conv3d)
 
 
 class PSOEngine :
@@ -49,7 +49,7 @@ class PSOEngine :
     def evaluate_fitness(self,position,magedata,maskdata):
         restNet3d = Resnet3d.RestNet3dModule(48, 48, 48, channels=1, n_class=2)
           
-        return restNet3d.train(magedata , maskdata, position , self.batch_size)
+        return restNet3d.train(magedata , maskdata, position )
 
     
     def init_particles(self,list_particules):
@@ -72,17 +72,20 @@ class PSOEngine :
        
        particles = sorted(particles, key=lambda Particle: Particle.fitness_best_pos.numpy())   # sort by fitness
        
-       gbest_fitness.assign(particles[-1].fitness_best_pos)
+       gbest_fitness.assign(particles[0].fitness_best_pos)
        
-       for w in range(0,len(particles[-1].position)):
-        gbest[w].assign (particles[-1].position[w])
+       for w in range(0,len(particles[0].position)):
+        gbest[w].assign (particles[0].position[w])
        
        return gbest , gbest_fitness 
     
     def find_best(self,particles):
        
        particles = sorted(particles, key=lambda Particle: Particle.fitness.numpy())   # sort by fitness
-       return particles[0].fitness.numpy() 
+       """for w in range(len(particles)): 
+          print (particles[w].fitness.numpy() , particles[w].lost.numpy())
+       print('last')"""
+       return particles[0].fitness.numpy() , particles[0].lost.numpy()
 
     
     def update_velocity(self,particule,gbest,r1,r2):

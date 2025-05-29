@@ -1,14 +1,14 @@
 import sys
 
 #sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-#sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/ResNet3d')
 
-from ResNet3d.layer import (conv3d , normalizationlayer , resnet_Add , max_pool3d)
+
+from layer import (conv3d , normalizationlayer , resnet_Add , max_pool3d 
+                   ,weight_xavier_init , bias_variable)
 import tensorflow as tf
 import numpy as np
-import cv2
-import os
-import random
+
 
 def conv_bn_relu_drop(x, W, B,pre_activations,activations,phase,image_z=None, height=None, width=None,scope=None):
     conv = conv3d(x, W) + B
@@ -45,12 +45,12 @@ def conv_sigmod(x, W,B ,pre_activations,activations):
     activations.append(conv)
     return conv
 
-def full_connected_relu_drop(x, W, B, activefunction='relu', scope=None):
+def full_connected_relu_drop(x, W, B, activefunction='relu',scope=None):
    
     FC = tf.matmul(x, W) + B
     if activefunction == 'relu':
         FC = tf.nn.relu(FC)
-        FC = tf.nn.dropout(FC, drop)
+        #FC = tf.nn.dropout(FC, drop)
     elif activefunction == 'softmax':
         FC = tf.nn.softmax(FC)
     return FC
@@ -177,10 +177,11 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     layer6 = tf.reshape(gap, [-1, 256])  # shape=(?, 256)
 
     layer6 = full_connected_relu_drop(x=layer6, W=position[20],B=position[21], activefunction='relu',
-                                      scope='fc1')
+                                       scope='fc1')
      # layer7->output
-    output = full_connected_relu_drop(x=layer6, W=position[22],B=position[23], activefunction='softmax',
+    output = full_connected_relu_drop(x=layer6, W=position[22],B=position[23], activefunction='regression',
                                       scope='output')    
+    
     return output 
 
 class RestNet3dModule(object):
@@ -190,13 +191,14 @@ class RestNet3dModule(object):
         self.image_depth = image_depth
         self.channels = channels
         self.n_class = n_class
+        
                 
 
-    def train(self, train_images , train_lanbels , position , batch_size):       
+    def train(self, train_images , train_lanbels , position):       
          
          #random.randrange(0, train_images.shape[0]-batch_size)
          # get new batch
-         batch_xs_path, batch_ys_path = train_images, train_lanbels         
+         batch_xs_path, batch_ys = train_images, train_lanbels         
          batch_xs = np.empty((len(batch_xs_path), self.image_depth, self.image_height, self.image_width,
                                  self.channels))         
          self.phase = 1
@@ -209,12 +211,14 @@ class RestNet3dModule(object):
          batch_ys = batch_ys.astype(np.float)
          # Normalize from [0:255] => [0.0:1.0]
          batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
+         batch_xs=np.float32(batch_xs) 
 
          with tf.device('/cpu:0'):
             with tf.GradientTape() as tape:
              Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs)\
                                       ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
              train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
+             Y_pred = tf.nn.softmax(Y_pred)
              acc = accuracy(tf.convert_to_tensor(value=batch_ys),Y_pred)
              position_list = list(position)
              derivative_position = \
@@ -222,27 +226,29 @@ class RestNet3dModule(object):
                      
                      
                           
-         return acc , derivative_position 
+         return train_loss , derivative_position , acc 
 
-    def prediction(self, test_images,position,test_masks):
-        test_images = np.reshape(test_images, (test_images.shape[0], test_images.shape[1], test_images.shape[2], 1))
+    def prediction(self, test_images,position):
+        
+        self.phase = 1
+        test_images = np.reshape(test_images, (
+            test_images.shape[0], test_images.shape[1], test_images.shape[2], test_images.shape[3], 1))
         test_images = test_images.astype(np.float)
         test_images = np.multiply(test_images, 1.0 / 255.0)
         test_images=np.float32(test_images)
 
-        test_masks = np.reshape(test_masks, (test_masks.shape[0], test_masks.shape[1], test_masks.shape[2], 1))
-        test_masks = test_masks.astype(np.float)
-        test_masks = np.multiply(test_masks, 1.0 / 255.0)
-        test_masks=np.float32(test_masks)
-        
-        pred =_create_conv_net(tf.convert_to_tensor(value=test_images),\
-              self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
-        train_loss=cost(tf.convert_to_tensor(value=test_masks),pred) 
-        
-        result = np.reshape(pred, (test_images.shape[0], test_images.shape[1], test_images.shape[2]))
-        result = result.astype(np.float32) * 255.
-        #result = np.clip(result, 0, 255).astype('uint8')
-        return result,train_loss             
+        predictvalue = np.zeros(test_images.shape[0])
+        predict_probvalue = np.zeros(test_images.shape[0], np.float32)
+               
+        with tf.device('/cpu:0'):
+         for i in range(test_images.shape[0]):
+            Y_pred =_create_conv_net(tf.convert_to_tensor(value=test_images[i])\
+                                      ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
+            Y_pred = tf.nn.softmax(Y_pred)
+            predict = tf.argmax(Y_pred, 1)
+            
+            predictvalue[i], predict_probvalue[i] = predict, Y_pred[0][1]
+        return predictvalue, predict_probvalue            
 
 def weight_xavier_init_particule():
     # creating Tensor
@@ -336,7 +342,7 @@ def weight_xavier_init_particule():
 
     scope='layer6'
     kernal= (256, 512)
-    W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] * kernal[2] * kernal[3],
+    W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1],
                                n_outputs=kernal[-1], activefunction='relu', variable_name=scope + 'conv_W')
     B = bias_variable([kernal[-1]], variable_name=scope + 'conv_B')
     list.append(W)
@@ -344,7 +350,7 @@ def weight_xavier_init_particule():
 
     scope='layer7'
     kernal= (512 , 2)
-    W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] * kernal[2] * kernal[3],
+    W = weight_xavier_init(shape=kernal, n_inputs=kernal[0] * kernal[1] ,
                                n_outputs=kernal[-1], activefunction='relu', variable_name=scope + 'conv_W')
     B = bias_variable([kernal[-1]], variable_name=scope + 'conv_B')
     list.append(W)

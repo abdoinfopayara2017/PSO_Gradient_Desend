@@ -10,40 +10,42 @@ import cv2
 # Weight initialization (Xavier's init)
 def weight_xavier_init(shape, n_inputs, n_outputs, activefunction='sigomd', uniform=True, variable_name=None):
     with tf.device('/cpu:0'):
-        if activefunction == 'sigomd':
-            if uniform:
-                init_range = tf.sqrt(6.0 / (n_inputs + n_outputs))
-                initial = tf.random_uniform(shape, -init_range, init_range)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
-            else:
-                stddev = tf.sqrt(2.0 / (n_inputs + n_outputs))
-                initial = tf.truncated_normal(shape, mean=0.0, stddev=stddev)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
-        elif activefunction == 'relu':
-            if uniform:
-                init_range = tf.sqrt(6.0 / (n_inputs + n_outputs)) * np.sqrt(2)
-                initial = tf.random_uniform(shape, -init_range, init_range)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
-            else:
-                stddev = tf.sqrt(2.0 / (n_inputs + n_outputs)) * np.sqrt(2)
-                initial = tf.truncated_normal(shape, mean=0.0, stddev=stddev)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
-        elif activefunction == 'tan':
-            if uniform:
-                init_range = tf.sqrt(6.0 / (n_inputs + n_outputs)) * 4
-                initial = tf.random_uniform(shape, -init_range, init_range)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
-            else:
-                stddev = tf.sqrt(2.0 / (n_inputs + n_outputs)) * 4
-                initial = tf.truncated_normal(shape, mean=0.0, stddev=stddev)
-                return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
+        with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
+            if activefunction == 'sigomd':
+                if uniform:
+                    init_range = tf.sqrt(6.0 / (n_inputs + n_outputs))
+                    initial = tf.random.uniform(shape, -init_range, init_range)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
+                else:
+                    stddev = tf.sqrt(2.0 / (n_inputs + n_outputs))
+                    initial = tf.random.truncated_normal(shape, mean=0.0, stddev=stddev)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
+            elif activefunction == 'relu':
+                if uniform:
+                    init_range = tf.sqrt(6.0 / (n_inputs + n_outputs)) * np.sqrt(2)
+                    initial = tf.random.uniform(shape, -init_range, init_range)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
+                else:
+                    stddev = tf.sqrt(2.0 / (n_inputs + n_outputs)) * np.sqrt(2)
+                    initial = tf.random.truncated_normal(shape, mean=0.0, stddev=stddev)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
+            elif activefunction == 'tan':
+                if uniform:
+                    init_range = tf.sqrt(6.0 / (n_inputs + n_outputs)) * 4
+                    initial = tf.random.uniform(shape, -init_range, init_range)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
+                else:
+                    stddev = tf.sqrt(2.0 / (n_inputs + n_outputs)) * 4
+                    initial = tf.random.truncated_normal(shape, mean=0.0, stddev=stddev)
+                    return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
 
 
 # Bias initialization
 def bias_variable(shape, variable_name=None):
     with tf.device('/cpu:0'):
-        initial = tf.constant(0.1, shape=shape)
-        return tf.get_variable(name=variable_name, initializer=initial, trainable=True)
+        with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
+            initial = tf.constant(0.1, shape=shape)
+            return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)
 
 
 # 3D convolution
@@ -92,10 +94,10 @@ def normalizationlayer(x, is_train, height=None, width=None, image_z=None, norm_
             if H == None and W == None and Z == None:
                 Z, H, W = image_z, height, width
             x = tf.reshape(x, [-1, G, C // G, Z, H, W])
-            mean, var = tf.nn.moments(x, [2, 3, 4, 5], keep_dims=True)
+            mean, var = tf.nn.moments(x, [2, 3, 4, 5], keepdims=True)
             x = (x - mean) / tf.sqrt(var + esp)
-            gama = tf.get_variable(scope + norm_type + 'group_gama', [C], initializer=tf.constant_initializer(1.0))
-            beta = tf.get_variable(scope + norm_type + 'group_beta', [C], initializer=tf.constant_initializer(0.0))
+            gama = tf.compat.v1.get_variable(scope + norm_type + 'group_gama', [C], initializer=tf.constant_initializer(1.0))
+            beta = tf.compat.v1.get_variable(scope + norm_type + 'group_beta', [C], initializer=tf.constant_initializer(0.0))
             gama = tf.reshape(gama, [1, C, 1, 1, 1])
             beta = tf.reshape(beta, [1, C, 1, 1, 1])
             output = tf.reshape(x, [-1, C, Z, H, W]) * gama + beta

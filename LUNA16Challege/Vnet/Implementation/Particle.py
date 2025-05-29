@@ -11,6 +11,7 @@ class Particle:
         self.best_pos = np.empty(len(data),dtype=object) # best position individual
         self.partial_derivative = [] #np.empty(len(data),dtype=object) # particle position
         self.fitness = tf.Variable(0,dtype=tf.float32)
+        self.lost = tf.Variable(0,dtype=tf.float32)
         self.fitness_best_pos = tf.Variable(0,dtype=tf.float32)        
         self.pre_activations = []
         self.activations = []

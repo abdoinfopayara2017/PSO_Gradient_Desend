@@ -94,7 +94,7 @@ def classify_metric_message(predict_label_file, name=None):
     :param name:
     :return:
     """
-    csvimagedata = pd.read_csv(predict_label_file)
+    csvimagedata = pd.read_csv(predict_label_file,delimiter=',')
     data = csvimagedata.iloc[:, :].values
     predict_labels = data[:, 0]
     predict_probs = data[:, 1]
