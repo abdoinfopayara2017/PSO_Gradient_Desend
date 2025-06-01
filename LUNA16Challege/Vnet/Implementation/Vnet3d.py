@@ -270,7 +270,7 @@ class Vnet3dModule(object):
          batch_ys = np.multiply(batch_ys, 1.0 / 255.0)
          batch_ys=np.float32(batch_ys)     
          
-         with tf.device('/cpu:0'):
+         with tf.device('/gpu:0'):
 
               with tf.GradientTape() as tape:
                      Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs),self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
