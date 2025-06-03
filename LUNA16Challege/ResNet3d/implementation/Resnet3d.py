@@ -1,7 +1,7 @@
 import sys
 
 #sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-sys.path.insert(0, 'E:/LUNA 16/PSOGD v1/PSO_Gradient_Desend/LUNA16Challege/ResNet3d')
+sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/ResNet3d')
 
 
 from layer import (conv3d , normalizationlayer , resnet_Add , max_pool3d 
@@ -226,7 +226,7 @@ class RestNet3dModule(object):
                      
                      
                           
-         return train_loss , derivative_position , acc 
+         return  train_loss , derivative_position , acc
 
     def prediction(self, test_images,position):
         

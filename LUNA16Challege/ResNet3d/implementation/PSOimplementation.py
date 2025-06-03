@@ -140,10 +140,10 @@ class PSOimplemntation :
           gbest , gbest_fitness =PSO.find_gbest(list_particules,gbest , gbest_fitness)
           best_lost , best_acc = PSO.find_best(list_particules)
           with open('myLog.txt', 'a') as f:
-               print('best of iteration %d is %5f with acc of %5f' \
+               print('best of iteration %d is loss of %5f with acc of %5f' \
                      %(i,best_lost,best_acc), file=f)
           
-          PSO.w = 1 - abs(gbest_fitness)
+          PSO.w = 1 - abs(1 - gbest_fitness)
           PSO.c1 = PSO.w * 2
           PSO.c2 = 2 - PSO.c1
           """if i % 10 ==0 : """ 
@@ -219,10 +219,10 @@ def launch_pso(retrive):
      # label one_hot coding
      label_counts = np.unique(labels).shape[0]
      train_labels_onehot = dense_to_one_hot(labels, label_counts)
-     train_labels_onehot = train_labels_onehot.astype(np.float)
+     train_labels_onehot = train_labels_onehot.astype(float)
      psoimplemntation.lunch(retrive,images,train_labels_onehot,32)
-launch_pso(False)      
-#predict_test()      
+#launch_pso(False)      
+predict_test()      
 
 
            
