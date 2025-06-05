@@ -226,7 +226,7 @@ class RestNet3dModule(object):
                      
                      
                           
-         return  train_loss , derivative_position , acc
+         return  acc , derivative_position , train_loss
 
     def prediction(self, test_images,position):
         

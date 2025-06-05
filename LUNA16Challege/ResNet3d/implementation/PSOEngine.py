@@ -72,10 +72,10 @@ class PSOEngine :
        
        particles = sorted(particles, key=lambda Particle: Particle.fitness_best_pos.numpy())   # sort by fitness
        
-       gbest_fitness.assign(particles[0].fitness_best_pos)
+       gbest_fitness.assign(particles[-1].fitness_best_pos)
        
-       for w in range(0,len(particles[0].position)):
-        gbest[w].assign (particles[0].position[w])
+       for w in range(0,len(particles[-1].position)):
+        gbest[w].assign (particles[-1].position[w])
        
        return gbest , gbest_fitness 
     
@@ -85,7 +85,7 @@ class PSOEngine :
        """for w in range(len(particles)): 
           print (particles[w].fitness.numpy() , particles[w].lost.numpy())
        print('last')"""
-       return particles[0].fitness.numpy() , particles[0].lost.numpy()
+       return particles[-1].fitness.numpy() , particles[-1].lost.numpy()
 
     
     def update_velocity(self,particule,gbest,r1,r2):

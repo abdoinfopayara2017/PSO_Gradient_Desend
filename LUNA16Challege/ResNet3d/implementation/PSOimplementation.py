@@ -129,7 +129,7 @@ class PSOimplemntation :
              
             #update Pbest
            
-            bool = tf.less(list_particules[j].fitness,
+            bool = tf.greater(list_particules[j].fitness,
                         list_particules[j].fitness_best_pos).numpy()
             if (bool):
              list_particules[j].fitness_best_pos =  list_particules[j].fitness
@@ -138,12 +138,12 @@ class PSOimplemntation :
                      
           #update Gbest 
           gbest , gbest_fitness =PSO.find_gbest(list_particules,gbest , gbest_fitness)
-          best_lost , best_acc = PSO.find_best(list_particules)
+          best_acc , best_lost = PSO.find_best(list_particules)
           with open('myLog.txt', 'a') as f:
                print('best of iteration %d is loss of %5f with acc of %5f' \
                      %(i,best_lost,best_acc), file=f)
           
-          PSO.w = 1 - abs(1 - gbest_fitness)
+          PSO.w = 1 - abs(gbest_fitness)
           PSO.c1 = PSO.w * 2
           PSO.c2 = 2 - PSO.c1
           """if i % 10 ==0 : """ 
@@ -151,7 +151,7 @@ class PSOimplemntation :
           PSO.c1 = PSO.c1 / 10000
           PSO.c2 = PSO.c2  / 1000    
           
-          if(gbest_fitness.numpy() < last_fitness) : 
+          if(gbest_fitness.numpy() > last_fitness) : 
              last_fitness = gbest_fitness.numpy()
              self.saveVariables(path = path ,variables = list_particules)
              #with open('myLog.txt', 'a') as f:
