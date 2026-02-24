@@ -11,6 +11,8 @@ from sklearn.metrics import roc_auc_score
 import pandas as pd
 import tensorflow as tf
 
+tf.compat.v1.disable_eager_execution()
+
 
 class tf_roc(object):
     def __init__(self, y_pred_prob, y_true, threshold_num, save_dir):
@@ -30,7 +32,7 @@ class tf_roc(object):
         self.tpr = []  # true positive
         self.ths = []  # thresholds
         self.save_dir = save_dir
-        self.writer = tf.summary.FileWriter(self.save_dir)
+        self.writer = tf.compat.v1.summary.FileWriter(self.save_dir)
 
     def calc(self):
         for label in self.labels:
@@ -49,7 +51,7 @@ class tf_roc(object):
         print(self.ths)
 
     def _save(self, fpr, tpr):
-        summt = tf.Summary()
+        summt = tf.compat.v1.Summary()
         summt.value.add(tag="roc", simple_value=tpr)
         self.writer.add_summary(summt, fpr * 100)  # for tensorboard step drawable
         self.writer.flush()
@@ -108,7 +110,7 @@ def classify_metric_message(predict_label_file, name=None):
         classification_reports(true_labels, predict_labels)
     elif name == "roc_curve":
         threshold_num = 2000
-        save_dir = "log"
+        save_dir = "log_ROC"
         roc = tf_roc(predict_probs, true_labels, int(threshold_num), save_dir)
         roc.calc()
 

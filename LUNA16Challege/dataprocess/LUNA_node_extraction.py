@@ -90,8 +90,7 @@ def get_node_classify():
         for fcount, img_file in enumerate(tqdm(file_list_path)):
             # get all nodules associate with file
             mini_df = df_node[df_node["file"] == img_file]
-            # some files may not have a nodule--skipping those
-           
+            # some files may not have a nodule--skipping those           
             if mini_df.shape[0] > 0:
                 img_file=img_file+".mhd"
                 # load the data once

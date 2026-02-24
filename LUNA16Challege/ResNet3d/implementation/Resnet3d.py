@@ -120,7 +120,9 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     # layer1->convolution
     
     activations.append(inputX)
-    
+    """
+    Step 1
+    """
     layer0 = conv_bn_relu_drop(x=inputX,W=position[0],B=position[1],pre_activations=pre_activations,
                                activations=activations,phase=phase,scope='layer0')
     
@@ -132,6 +134,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     
     # down sampling1
     down1 = max_pool3d(x=layer1, depth=True)        
+    
+    """
+    Step 2
+    """
     
     # layer2->convolution
     layer2 = conv_bn_relu_drop(x=down1, W=position[4],B=position[5],pre_activations=pre_activations,
@@ -145,6 +151,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     # down sampling2
     down2 = max_pool3d(x=layer2, depth=True)# layer3->convolution
     
+    """
+    Step 3
+    """
+    
     layer3 = conv_bn_relu_drop(x=down2, W=position[8],B=position[9],pre_activations=pre_activations,
                                activations=activations,phase=phase,scope='layer3_1')
     layer3 = conv_bn_relu_drop(x=layer3, W=position[10],B=position[11],pre_activations=pre_activations,
@@ -153,6 +163,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer3)
     # down sampling3
     down3 = max_pool3d(x=layer3, depth=True)
+    
+    """
+    Step 4
+    """
     
     # layer4->convolution
     layer4 = conv_bn_relu_drop(x=down3, W=position[12],B=position[13],pre_activations=pre_activations,
@@ -163,6 +177,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer4)
     # down sampling4
     down4 = max_pool3d(x=layer4, depth=True) # layer5->convolution
+    
+    """
+    Step 5
+    """
     
     layer5 = conv_bn_relu_drop(x=down4, W=position[16],B=position[17],pre_activations=pre_activations,
                                activations=activations,phase=phase, scope='layer5_1')
@@ -176,6 +194,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     # layer6->FC1
     layer6 = tf.reshape(gap, [-1, 256])  # shape=(?, 256)
 
+    """
+    Step 6
+    """
+    
     layer6 = full_connected_relu_drop(x=layer6, W=position[20],B=position[21], activefunction='relu',
                                        scope='fc1')
      # layer7->output
