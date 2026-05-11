@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 
 #sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
+sys.path.insert(0, 'LUNA16Challege/Vnet')
 from Implementation.Particle import Particle
 
 

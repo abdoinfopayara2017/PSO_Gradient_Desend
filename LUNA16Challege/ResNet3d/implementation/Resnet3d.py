@@ -1,7 +1,7 @@
 import sys
 
 #sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/Vnet')
-sys.path.insert(0, 'D:/FELIOUNE/PSO_GD/PSO_Gradient_Desend/LUNA16Challege/ResNet3d')
+sys.path.insert(0, 'LUNA16Challege/ResNet3d/')
 
 
 from layer import (conv3d , normalizationlayer , resnet_Add , max_pool3d 
@@ -45,14 +45,16 @@ def conv_sigmod(x, W,B ,pre_activations,activations):
     activations.append(conv)
     return conv
 
-def full_connected_relu_drop(x, W, B, activefunction='relu',scope=None):
+def full_connected_relu_drop(x, W, B, pre_activations,activations,activefunction='relu',scope=None):
    
-    FC = tf.matmul(x, W) + B
+    pre_activations.append(x)
+    FC = tf.matmul(x, W) + B    
     if activefunction == 'relu':
         FC = tf.nn.relu(FC)
         #FC = tf.nn.dropout(FC, drop)
     elif activefunction == 'softmax':
         FC = tf.nn.softmax(FC)
+    activations.append(FC)
     return FC
 
 
@@ -134,7 +136,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     
     # down sampling1
     down1 = max_pool3d(x=layer1, depth=True)        
-    
+    """
+    to delete
+    """
+    activations.append(down1)
     """
     Step 2
     """
@@ -150,7 +155,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer2)
     # down sampling2
     down2 = max_pool3d(x=layer2, depth=True)# layer3->convolution
-    
+    """
+    to delete
+    """
+    activations.append(down2)
     """
     Step 3
     """
@@ -163,7 +171,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer3)
     # down sampling3
     down3 = max_pool3d(x=layer3, depth=True)
-    
+    """
+    to delete
+    """
+    activations.append(down3)
     """
     Step 4
     """
@@ -177,7 +188,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer4)
     # down sampling4
     down4 = max_pool3d(x=layer4, depth=True) # layer5->convolution
-    
+    """
+    to delete
+    """
+    activations.append(down4)
     """
     Step 5
     """
@@ -190,20 +204,30 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
     activations.append(layer5)
     # global average pooling
     gap = tf.reduce_mean(layer5, axis=(1, 2, 3))
-    
+    """
+    to delete
+    """
+    activations.append(gap)
     # layer6->FC1
     layer6 = tf.reshape(gap, [-1, 256])  # shape=(?, 256)
-
+    """
+    to delete
+    """
+    activations.append(layer6)
+    
     """
     Step 6
     """
     
-    layer6 = full_connected_relu_drop(x=layer6, W=position[20],B=position[21], activefunction='relu',
+    layer6 = full_connected_relu_drop(x=layer6, W=position[20],B=position[21],pre_activations=pre_activations,activations=activations,activefunction='relu',
                                        scope='fc1')
      # layer7->output
-    output = full_connected_relu_drop(x=layer6, W=position[22],B=position[23], activefunction='regression',
+    output = full_connected_relu_drop(x=layer6, W=position[22],B=position[23], pre_activations=pre_activations,activations=activations,activefunction='regression',
                                       scope='output')    
-    
+    print("- start -")
+    for item in activations:
+     print(tf.shape(item))
+    print("- end -")
     return output 
 
 class RestNet3dModule(object):
@@ -235,7 +259,7 @@ class RestNet3dModule(object):
          batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
          batch_xs=np.float32(batch_xs) 
 
-         with tf.device('/gpu:0'):
+         with tf.device('/cpu:0'):
             with tf.GradientTape() as tape:
              Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs)\
                                       ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
@@ -262,7 +286,7 @@ class RestNet3dModule(object):
         predictvalue = np.zeros(test_images.shape[0])
         predict_probvalue = np.zeros(test_images.shape[0], np.float32)
                
-        with tf.device('/gpu:0'):
+        with tf.device('/cpu:0'):
          for i in range(test_images.shape[0]):
             Y_pred =_create_conv_net(tf.convert_to_tensor(value=test_images[i])\
                                       ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)

@@ -9,7 +9,7 @@ import cv2
 
 # Weight initialization (Xavier's init)
 def weight_xavier_init(shape, n_inputs, n_outputs, activefunction='sigomd', uniform=True, variable_name=None):
-    with tf.device('/gpu:0'):
+    with tf.device('/cpu:0'):
         with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
             if activefunction == 'sigomd':
                 if uniform:
@@ -42,7 +42,7 @@ def weight_xavier_init(shape, n_inputs, n_outputs, activefunction='sigomd', unif
 
 # Bias initialization
 def bias_variable(shape, variable_name=None):
-    with tf.device('/gpu:0'):
+    with tf.device('/cpu:0'):
         with tf.compat.v1.variable_scope("variables",reuse=tf.compat.v1.AUTO_REUSE) as scope:
             initial = tf.constant(0.1, shape=shape)
             return tf.compat.v1.get_variable(name=variable_name, initializer=initial, trainable=True)

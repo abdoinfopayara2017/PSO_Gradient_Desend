@@ -1,0 +1,32 @@
+- start -
+Input :  tf.Tensor([32 48 48 48  1], shape=(5,), dtype=int32)
+
+layer0 : tf.Tensor([32 48 48 48 16], shape=(5,), dtype=int32)
+layer1 : tf.Tensor([32 48 48 48 16], shape=(5,), dtype=int32)
+Resnet 1 : tf.Tensor([32 48 48 48 16], shape=(5,), dtype=int32)
+max_pool3d1 : tf.Tensor([32 24 24 24 16], shape=(5,), dtype=int32)
+
+layer2_1 : tf.Tensor([32 24 24 24 32], shape=(5,), dtype=int32)
+layer2_2 : tf.Tensor([32 24 24 24 32], shape=(5,), dtype=int32)
+Resnet2 : tf.Tensor([32 24 24 24 32], shape=(5,), dtype=int32)
+max_pool3d2 : tf.Tensor([32 12 12 12 32], shape=(5,), dtype=int32)
+
+layer3_1 : tf.Tensor([32 12 12 12 64], shape=(5,), dtype=int32)
+layer3_2 : tf.Tensor([32 12 12 12 64], shape=(5,), dtype=int32)
+Resnet3 : tf.Tensor([32 12 12 12 64], shape=(5,), dtype=int32)
+max_pool3d3 : tf.Tensor([32  6  6  6 64], shape=(5,), dtype=int32)
+
+layer4_1 : tf.Tensor([ 32   6   6   6 128], shape=(5,), dtype=int32)
+layer4_2 : tf.Tensor([ 32   6   6   6 128], shape=(5,), dtype=int32)
+Resnet4 : tf.Tensor([ 32   6   6   6 128], shape=(5,), dtype=int32)
+max_pool3d4 : tf.Tensor([ 32   3   3   3 128], shape=(5,), dtype=int32)
+
+layer5_1 : tf.Tensor([ 32   3   3   3 256], shape=(5,), dtype=int32)
+layer5_2 : tf.Tensor([ 32   3   3   3 256], shape=(5,), dtype=int32)
+Resnet5 : tf.Tensor([ 32   3   3   3 256], shape=(5,), dtype=int32)
+avg_pool3d5 : tf.Tensor([ 32 256], shape=(2,), dtype=int32)
+
+re-shape6 : tf.Tensor([ 32 256], shape=(2,), dtype=int32)
+fully-connected : tf.Tensor([ 32 512], shape=(2,), dtype=int32)
+output : tf.Tensor([32  2], shape=(2,), dtype=int32)
+- end -
