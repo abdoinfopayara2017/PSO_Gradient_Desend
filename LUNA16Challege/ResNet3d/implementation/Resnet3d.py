@@ -224,10 +224,10 @@ def _create_conv_net(X, image_z, image_width, image_height, image_channel,positi
      # layer7->output
     output = full_connected_relu_drop(x=layer6, W=position[22],B=position[23], pre_activations=pre_activations,activations=activations,activefunction='regression',
                                       scope='output')    
-    print("- start -")
-    for item in activations:
-     print(tf.shape(item))
-    print("- end -")
+    #print("- start -")
+    #for item in activations:
+     #print(tf.shape(item))
+    #print("- end -")
     return output 
 
 class RestNet3dModule(object):

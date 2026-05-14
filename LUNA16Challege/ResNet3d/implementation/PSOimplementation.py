@@ -204,7 +204,7 @@ def predict_test():
        psoimplemntation.predict(1)
 def launch_pso(retrive):
      
-     path_data = Path(__file__).parent / "..\..\dataprocess\data\\training.csv"
+     path_data = Path(__file__).parent / "..\..\dataprocess\data\\training_origine.csv"
      with path_data.open() as file:
       # Read  data set (Train data from CSV file)
       csvimagedata = pd.read_csv(file,delimiter=',')
@@ -215,7 +215,7 @@ def launch_pso(retrive):
       # For Labels
       labels = data[:, 0]
      #754 * 10
-     psoimplemntation = PSOimplemntation(nb_iteration=1,
+     psoimplemntation = PSOimplemntation(nb_iteration=754 * 10,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
      # label one_hot coding
      label_counts = np.unique(labels).shape[0]
