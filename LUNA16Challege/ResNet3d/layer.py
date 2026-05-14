@@ -108,14 +108,14 @@ def normalizationlayer(x, is_train, height=None, width=None, image_z=None, norm_
 
 # resnet add_connect
 def resnet_Add(x1, x2):
-    if x1.get_shape().as_list()[4] != x2.get_shape().as_list()[4]:
+    #if x1.get_shape().as_list()[4] != x2.get_shape().as_list()[4]:
         # Option A: Zero-padding
-        residual_connection = x2 + tf.pad(x1, [[0, 0], [0, 0], [0, 0], [0, 0],
-                                               [0, x2.get_shape().as_list()[4] -
-                                                x1.get_shape().as_list()[4]]])
-    else:
-        residual_connection = x2 + x1
-    return residual_connection
+    #    residual_connection = x2 + tf.pad(x1, [[0, 0], [0, 0], [0, 0], [0, 0],
+    #                                           [0, x2.get_shape().as_list()[4] -
+    #                                            x1.get_shape().as_list()[4]]])
+    #else:
+    #    residual_connection = x2 + x1
+    return x2 #residual_connection
 
 
 # Convert class labels from scalars to one-hot vectors

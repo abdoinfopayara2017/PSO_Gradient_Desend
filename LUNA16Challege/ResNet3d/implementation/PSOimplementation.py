@@ -154,9 +154,9 @@ class PSOimplemntation :
           if(gbest_fitness.numpy() < last_fitness) : 
              last_fitness = gbest_fitness.numpy()
              self.saveVariables(path = path ,variables = list_particules)
-             #with open('myLog.txt', 'a') as f:
-              # print('iteration %d the  Gbest solution is %5f ' \
-               #          %(i,gbest_fitness.numpy(),), file=f)
+             with open('myLog.txt', 'a') as f:
+               print('iteration %d the  Gbest solution is %5f ' \
+                         %(i,gbest_fitness.numpy(),), file=f)
     
     def predict(self,batch_size):
         path_test = Path(__file__).parent / "..\..\dataprocess\data\\test.csv"
