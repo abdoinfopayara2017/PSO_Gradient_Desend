@@ -3,10 +3,12 @@
 '''
 from ResNet3d.layer import (conv3d, normalizationlayer, max_pool3d, resnet_Add, weight_xavier_init, bias_variable,
                             dense_to_one_hot)
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import os
 
+
+tf.compat.v1.disable_eager_execution()
 
 def conv_relu_drop(x, kernal, drop, phase, image_z=None, height=None, width=None, scope=None):
     with tf.name_scope(scope):
@@ -86,7 +88,7 @@ def _next_batch(train_images, train_labels, batch_size, index_in_epoch):
     start = index_in_epoch
     index_in_epoch += batch_size
 
-    num_examples = train_images.shape[0]
+    num_examples = train_images.shape[0]//batch_size
     # when all trainig data have been already used, it is reorder randomly
     if index_in_epoch > num_examples:
         # shuffle the data
@@ -159,12 +161,12 @@ class ResNet3dModule(object):
         # label one_hot coding
         label_counts = np.unique(train_lanbels).shape[0]
         train_labels_onehot = dense_to_one_hot(train_lanbels, label_counts)
-        train_labels_onehot = train_labels_onehot.astype(np.float)
+        train_labels_onehot = train_labels_onehot.astype(np.float32)
         if not os.path.exists(logs_path):
             os.makedirs(logs_path)
-        if not os.path.exists(logs_path + "model\\"):
-            os.makedirs(logs_path + "model\\")
-        model_path = logs_path + "model\\" + model_path
+        if not os.path.exists(logs_path + "model/"):
+            os.makedirs(logs_path + "model/")
+        model_path = logs_path + "model/" + model_path
 
         # update the moving average of batch norm before finish the training step
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -185,7 +187,7 @@ class ResNet3dModule(object):
         DISPLAY_STEP = 1
         index_in_epoch = 0
 
-        train_epochs = train_images.shape[0] * train_epochs
+        train_epochs = train_images.shape[0]//32 * train_epochs
         for i in range(train_epochs):
             # get new batch
             batch_xs_path, batch_ys, index_in_epoch = _next_batch(train_images, train_labels_onehot, batch_size,
@@ -197,29 +199,30 @@ class ResNet3dModule(object):
                                         (self.image_depth, self.image_height, self.image_width, self.channels))
                 batch_xs[num, :, :, :] = batchimage
             # Extracting images and labels from given data
-            batch_xs = batch_xs.astype(np.float)
-            batch_ys = batch_ys.astype(np.float)
+            batch_xs = batch_xs.astype(np.float32)
+            batch_ys = batch_ys.astype(np.float32)
             # Normalize from [0:255] => [0.0:1.0]
             batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
             # check progress on every 1st,2nd,...,10th,20th,...,100th... step
-            if i % DISPLAY_STEP == 0 or (i + 1) == train_epochs:
-                train_loss, train_accuracy = sess.run([self.cost, self.accuracy],
-                                                      feed_dict={self.X: batch_xs[batch_size // 5:],
-                                                                 self.Y_gt: batch_ys[batch_size // 5:],
+            #if i % DISPLAY_STEP == 0 or (i + 1) == train_epochs:
+            train_loss, train_accuracy = sess.run([self.cost, self.accuracy],
+                                                      feed_dict={self.X: batch_xs,
+                                                                 self.Y_gt: batch_ys,
                                                                  self.lr: learning_rate,
                                                                  self.drop: dropout_conv,
                                                                  self.phase: 1})
-                validataion_accuracy = self.accuracy.eval(feed_dict={self.X: batch_xs[0:batch_size // 5],
-                                                                     self.Y_gt: batch_ys[0:batch_size // 5],
-                                                                     self.lr: learning_rate,
-                                                                     self.drop: dropout_conv,
-                                                                     self.phase: 1})
-                print('epochs %d training_loss ,training_accuracy,validation_accuracy => %.5f,%.5f,%5f ' % (
-                    i, train_loss, train_accuracy, validataion_accuracy))
-                save_path = saver.save(sess, model_path, global_step=i)
-                print("Model saved in file:", save_path)
-                if i % (DISPLAY_STEP * 10) == 0 and i:
-                    DISPLAY_STEP *= 10
+            #validataion_accuracy = self.accuracy.eval(feed_dict={self.X: batch_xs[0:batch_size // 5],
+            #                                                         self.Y_gt: batch_ys[0:batch_size // 5],
+            #                                                         self.lr: learning_rate,
+            #                                                         self.drop: dropout_conv,
+            #                                                         self.phase: 1})
+            with open('myLog.txt', 'a') as f:
+                 print('epochs %d training_loss ,training_accuracy => %.5f,%.5f ' % (
+                    i, train_loss, train_accuracy),file=f)
+            save_path = saver.save(sess, model_path,global_step=7)
+            #print("Model saved in file:", save_path)
+            #    if i % (DISPLAY_STEP * 10) == 0 and i:
+            #        DISPLAY_STEP *= 10
 
                     # train on batch
             _, summary = sess.run([train_op, merged_summary_op], feed_dict={self.X: batch_xs,
@@ -236,7 +239,7 @@ class ResNet3dModule(object):
     def prediction(self, test_images):
         test_images = np.reshape(test_images, (
             test_images.shape[0], test_images.shape[1], test_images.shape[2], test_images.shape[3], 1))
-        test_images = test_images.astype(np.float)
+        test_images = test_images.astype(np.float32)
         test_images = np.multiply(test_images, 1.0 / 255.0)
 
         predictvalue = np.zeros(test_images.shape[0])

@@ -2,7 +2,7 @@
 covlution layer，pool layer，initialization。。。。
 '''
 from __future__ import division
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import cv2
 
