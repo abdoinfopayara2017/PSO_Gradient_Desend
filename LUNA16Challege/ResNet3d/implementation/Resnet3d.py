@@ -266,13 +266,13 @@ class RestNet3dModule(object):
              train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
              Y_pred = tf.nn.softmax(Y_pred)
              acc = accuracy(tf.convert_to_tensor(value=batch_ys),Y_pred)
-             position_list = list(position)
-             derivative_position = \
-                            tape.gradient(train_loss,position_list)
+             #position_list = list(position)
+             #derivative_position = \
+              #              tape.gradient(train_loss,position_list)
                      
                      
                           
-         return  train_loss , derivative_position , acc
+         return  train_loss , acc
 
     def prediction(self, test_images,position):
         

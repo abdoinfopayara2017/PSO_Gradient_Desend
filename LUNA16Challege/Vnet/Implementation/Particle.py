@@ -15,6 +15,9 @@ class Particle:
         self.fitness_best_pos = tf.Variable(0,dtype=tf.float32)        
         self.pre_activations = []
         self.activations = []
+        self.w = 0.9
+        self.c1 = 0.00018
+        self.c2 = 0.002
         
         for i in range(0,len(data)):            
             self.position[i]=tf.Variable(initial_value=tf.constant(0.0,shape=data[i].get_shape()),
