@@ -45,7 +45,7 @@ class PSOimplemntation :
 
      PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0,batch_size)
      list_particules=[]
-     path = "log\\classification\\" + "model\\" 
+     path = "log/classification/" + "model/" 
      if not os.path.exists(path) :
         os.makedirs(path)
      
@@ -165,7 +165,7 @@ class PSOimplemntation :
                #          %(i,gbest_fitness.numpy(),), file=f)
     
     def predict(self,batch_size):
-        path_test = Path(__file__).parent / "..\..\dataprocess\data\\test.csv"
+        path_test = Path(__file__).parent / "../../dataprocess/data/test.csv"
                 
         with path_test.open() as file:
          # Read  data set (Train data from CSV file)
@@ -175,7 +175,7 @@ class PSOimplemntation :
          images = data[:, 1:]
          # For Labels
          labels = data[:, 0]
-         path = "log\\classification\\" + "model\\" 
+         path = "log/classification/" + "model/" 
          list_particules=self.retrieveVariables(path+"model.txt")
          gbest=np.empty(len(list_particules[0].position),dtype=object)
          for w in range(0,len(gbest)):            
@@ -210,7 +210,7 @@ def predict_test():
        psoimplemntation.predict(1)
 def launch_pso(retrive):
      
-     path_data = Path(__file__).parent / "..\..\dataprocess\data\\training.csv"
+     path_data = Path(__file__).parent / "../../dataprocess/data/training.csv"
      with path_data.open() as file:
       # Read  data set (Train data from CSV file)
       csvimagedata = pd.read_csv(file,delimiter=',')
