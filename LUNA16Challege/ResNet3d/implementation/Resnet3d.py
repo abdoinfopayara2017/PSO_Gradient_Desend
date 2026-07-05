@@ -259,8 +259,8 @@ class RestNet3dModule(object):
          batch_xs = np.multiply(batch_xs, 1.0 / 255.0)
          batch_xs=np.float32(batch_xs) 
 
-         with tf.device('/cpu:0'):
-            with tf.GradientTape() as tape:
+         #with tf.device('/cpu:0'):
+         with tf.GradientTape() as tape:
              Y_pred =_create_conv_net(tf.convert_to_tensor(value=batch_xs)\
                                       ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
              train_loss=cost(tf.convert_to_tensor(value=batch_ys),Y_pred)
@@ -286,8 +286,8 @@ class RestNet3dModule(object):
         predictvalue = np.zeros(test_images.shape[0])
         predict_probvalue = np.zeros(test_images.shape[0], np.float32)
                
-        with tf.device('/cpu:0'):
-         for i in range(test_images.shape[0]):
+        #with tf.device('/cpu:0'):
+        for i in range(test_images.shape[0]):
             Y_pred =_create_conv_net(tf.convert_to_tensor(value=test_images[i])\
                                       ,self.image_depth, self.image_width, self.image_height, self.channels,position,self.phase)
             Y_pred = tf.nn.softmax(Y_pred)

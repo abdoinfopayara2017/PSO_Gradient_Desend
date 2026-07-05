@@ -71,7 +71,7 @@ class PSOimplemntation :
           list_particules[p].fitness , list_particules[p].lost = \
            PSO.evaluate_fitness(list_particules[p].position,imagedata_batch,maskdata_batch)
         
-          """with tf.device('/cpu:0'):
+          """#with tf.device('/cpu:0'):
             for w in range(0,len(list_particules[p].partial_derivative)) :         
               list_particules[p].partial_derivative[w]=tf.where(
               tf.greater_equal(list_particules[p].partial_derivative[w],tf.constant(0,dtype=tf.float32))\
@@ -93,9 +93,9 @@ class PSOimplemntation :
             
      # PSO boucle
      # for each iteration do
-     with tf.device('/cpu:0'):
+     #with tf.device('/cpu:0'):
       #for epoch in range(0,20) : 
-        for i in range(0,self.nb_iteration) :
+     for i in range(0,self.nb_iteration) :
           imagedata_batch , maskdata_batch , PSO.index_in_epoch = \
              PSO._next_batch( imagedata , labeldata , PSO.batch_size ,PSO.index_in_epoch  )
           
