@@ -165,72 +165,71 @@ class PSOimplemntation :
                #          %(i,gbest_fitness.numpy(),), file=f)
     
     def predict(self,batch_size):
-        path_test = Path(__file__).parent / "../../dataprocess/data/test.csv"
-                
-        with path_test.open() as file:
-         # Read  data set (Train data from CSV file)
-         csvimagedata = pd.read_csv(file,delimiter=',')
-         data = csvimagedata.iloc[:, :].values
-         # For Image
-         images = data[:, 1:]
-         # For Labels
-         labels = data[:, 0]
-         path = "log/classification/" + "model/" 
-         list_particules=self.retrieveVariables(path+"model.txt")
-         gbest=np.empty(len(list_particules[0].position),dtype=object)
-         for w in range(0,len(gbest)):            
-          gbest[w]=tf.Variable(initial_value=tf.constant(0.0,shape=list_particules[0].position[w].get_shape()),
-                    shape=list_particules[0].position[w].get_shape(),dtype=tf.float32)
-         gbest_fitness=tf.Variable(0,dtype=tf.float32)
-         PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0,batch_size)
-         gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
-         
-         predictvalues = []
-         predict_probs = []
-         ResVGGnet3d = resNet3d.RestNet3dModule(48, 48, 48, channels=1, n_class=2)
-         
-         with tf.device('/cpu:0') :
-          for num in range(np.shape(images)[0]):
-            batchimage = np.reshape(np.load(images[num][0]), (1, 48, 48, 48, 1))
-            predictvalue, predict_prob = ResVGGnet3d.prediction(batchimage,gbest)
-            predictvalues.append(predictvalue)
-            predict_probs.append(predict_prob)
-          name = 'classify_metrics.csv'
-          out = open(name, 'w')
-          out.writelines("y_predict" + "," + "y_score" + "," + "y_true" + "\n")
-          labels = labels.tolist()
-          for index in range(np.shape(images)[0]):
-           
-           out.writelines(
-            str(predictvalues[index][0]) + "," + str(predict_probs[index][0]) + "," + str(labels[index]) + "\n")
+        with tf.device('/gpu:0') :
+          path_test = Path(__file__).parent / "../../dataprocess/data/test.csv"
+          with path_test.open() as file:
+            # Read  data set (Train data from CSV file)
+            csvimagedata = pd.read_csv(file,delimiter=',')
+            data = csvimagedata.iloc[:, :].values
+            # For Image
+            images = data[:, 1:]
+            # For Labels
+            labels = data[:, 0]
+            path = "log/classification/" + "model/" 
+            list_particules=self.retrieveVariables(path+"model.txt")
+            gbest=np.empty(len(list_particules[0].position),dtype=object)
+            for w in range(0,len(gbest)):            
+              gbest[w]=tf.Variable(initial_value=tf.constant(0.0,shape=list_particules[0].position[w].get_shape()),
+                        shape=list_particules[0].position[w].get_shape(),dtype=tf.float32)
+            gbest_fitness=tf.Variable(0,dtype=tf.float32)
+            PSO=PSOEngine(self.swarm_size,self.cognitive,self.social,self.weight,0,batch_size)
+            gbest , gbest_fitness=PSO.find_gbest(list_particules,gbest , gbest_fitness)
+            
+            predictvalues = []
+            predict_probs = []
+            ResVGGnet3d = resNet3d.RestNet3dModule(48, 48, 48, channels=1, n_class=2)         
+            for num in range(np.shape(images)[0]):
+              batchimage = np.reshape(np.load(images[num][0]), (1, 48, 48, 48, 1))
+              predictvalue, predict_prob = ResVGGnet3d.prediction(batchimage,gbest)
+              predictvalues.append(predictvalue)
+              predict_probs.append(predict_prob)
+            name = 'classify_metrics.csv'
+            out = open(name, 'w')
+            out.writelines("y_predict" + "," + "y_score" + "," + "y_true" + "\n")
+            labels = labels.tolist()
+            for index in range(np.shape(images)[0]):
+              out.writelines(
+                str(predictvalues[index][0]) + "," + str(predict_probs[index][0]) + "," + str(labels[index]) + "\n")
             
 def predict_test():
        psoimplemntation = PSOimplemntation(nb_iteration=5435,
                           swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
        psoimplemntation.predict(1)
+       
 def launch_pso(retrive):
      
-     path_data = Path(__file__).parent / "../../dataprocess/data/training.csv"
-     with path_data.open() as file:
-      # Read  data set (Train data from CSV file)
-      csvimagedata = pd.read_csv(file,delimiter=',')
-      data = csvimagedata.iloc[:, :].values        
-      np.random.shuffle(data)
-      # For Image
-      images = data[:, 1:]
-      # For Labels
-      labels = data[:, 0]
-     #754 * 10
-     psoimplemntation = PSOimplemntation(nb_iteration=1,
-                          swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
-     # label one_hot coding
-     label_counts = np.unique(labels).shape[0]
-     train_labels_onehot = dense_to_one_hot(labels, label_counts)
-     train_labels_onehot = train_labels_onehot.astype(float)
-     psoimplemntation.lunch(retrive,images,train_labels_onehot,32)
+     with tf.device('/gpu:0'):
+      path_data = Path(__file__).parent / "../../dataprocess/data/training_origine.csv"
+      with path_data.open() as file:
+        # Read  data set (Train data from CSV file)
+        csvimagedata = pd.read_csv(file,delimiter=',')
+        data = csvimagedata.iloc[:, :].values        
+        np.random.shuffle(data)
+        # For Image
+        images = data[:, 1:]
+        # For Labels
+        labels = data[:, 0]
+      #754 * 10
+      psoimplemntation = PSOimplemntation(nb_iteration=754 * 10 ,
+                            swarm_size=20,cognitive=0.00018,social=0.002,weight=0.9)
+      # label one_hot coding
+      label_counts = np.unique(labels).shape[0]
+      train_labels_onehot = dense_to_one_hot(labels, label_counts)
+      train_labels_onehot = train_labels_onehot.astype(float)
+      psoimplemntation.lunch(retrive,images,train_labels_onehot,32)
 
-launch_pso(False)      
-#predict_test()      
+#launch_pso(False)      
+predict_test()      
 
 
            
